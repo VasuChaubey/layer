@@ -6,13 +6,13 @@
 //!
 //! #[tokio::main]
 //! async fn main() -> anyhow::Result<()> {
-//!   let (client, _shutdown) = Client::builder()
-//!       .api_id(12345)
-//!       .api_hash("abc123")
-//!       .session("my.session")
-//!       .catch_up(true)
-//!       .connect().await?;
-//!   Ok(())
+//! let (client, _shutdown) = Client::builder()
+//!     .api_id(12345)
+//!     .api_hash("abc123")
+//!     .session("my.session")
+//!     .catch_up(true)
+//!     .connect().await?;
+//! Ok(())
 //! }
 //! ```
 //!
@@ -21,10 +21,10 @@
 //! # use layer_client::Client;
 //! # #[tokio::main] async fn main() -> anyhow::Result<()> {
 //! let (client, _shutdown) = Client::builder()
-//!   .api_id(12345)
-//!   .api_hash("abc123")
-//!   .session_string(std::env::var("SESSION").unwrap_or_default())
-//!   .connect().await?;
+//! .api_id(12345)
+//! .api_hash("abc123")
+//! .session_string(std::env::var("SESSION").unwrap_or_default())
+//! .connect().await?;
 //! # Ok(()) }
 //! ```
 
@@ -126,9 +126,9 @@ impl ClientBuilder {
     /// # use layer_client::LibSqlBackend;
     /// use std::sync::Arc;
     /// let (client, _) = Client::builder()
-    ///   .api_id(12345).api_hash("abc")
-    ///   .session_backend(Arc::new(LibSqlBackend::new("my.db")))
-    ///   .connect().await?;
+    /// .api_id(12345).api_hash("abc")
+    /// .session_backend(Arc::new(LibSqlBackend::new("my.db")))
+    /// .connect().await?;
     /// # }
     /// ```
     pub fn session_backend(mut self, backend: Arc<dyn SessionBackend>) -> Self {

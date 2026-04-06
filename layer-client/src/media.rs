@@ -68,7 +68,6 @@ pub const DOWNLOAD_CHUNK_SIZE: i32 = 512 * 1024;
 /// Files larger than this use `SaveBigFilePart` and the parallel upload path.
 const BIG_FILE_THRESHOLD: usize = 10 * 1024 * 1024;
 
-
 /// Return `mime_type` as-is if it is non-empty and not the generic fallback,
 /// otherwise infer from `name`'s extension via `mime_guess`.
 fn resolve_mime(name: &str, mime_type: &str) -> String {
@@ -591,13 +590,13 @@ impl Client {
     /// use layer_client::media::AlbumItem;
     ///
     /// client.send_album(peer, vec![
-    ///   AlbumItem::new(photo_media).caption("First photo"),
-    ///   AlbumItem::new(video_media).caption("Second photo").reply_to(Some(42)),
+    /// AlbumItem::new(photo_media).caption("First photo"),
+    /// AlbumItem::new(video_media).caption("Second photo").reply_to(Some(42)),
     /// ]).await?;
     ///
     /// // Shorthand: legacy tuple API still works via From impl
     /// client.send_album(peer, vec![
-    ///   (photo_media, "caption".to_string()).into(),
+    /// (photo_media, "caption".to_string()).into(),
     /// ]).await?;
     /// ```
     pub async fn send_album(

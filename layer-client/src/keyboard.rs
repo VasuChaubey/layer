@@ -5,9 +5,9 @@
 //! use layer_client::keyboard::{InlineKeyboard, Button};
 //!
 //! let kb = InlineKeyboard::new()
-//!   .row([Button::callback("✅ Yes", b"yes"),
-//!         Button::callback("❌ No",  b"no")])
-//!   .row([Button::url("📖 Docs", "https://docs.rs/layer-client")]);
+//! .row([Button::callback("✅ Yes", b"yes"),
+//!       Button::callback("❌ No",  b"no")])
+//! .row([Button::url("📖 Docs", "https://docs.rs/layer-client")]);
 //!
 //! // Pass to InputMessage:
 //! // let msg = InputMessage::text("Choose:").keyboard(kb);
@@ -221,9 +221,9 @@ impl Button {
 /// use layer_client::keyboard::{InlineKeyboard, Button};
 ///
 /// let kb = InlineKeyboard::new()
-///   .row([Button::callback("Option A", b"a"),
-///         Button::callback("Option B", b"b")])
-///   .row([Button::url("More info", "https://example.com")]);
+/// .row([Button::callback("Option A", b"a"),
+///       Button::callback("Option B", b"b")])
+/// .row([Button::url("More info", "https://example.com")]);
 /// ```
 #[derive(Clone, Default)]
 pub struct InlineKeyboard {

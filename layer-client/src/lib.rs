@@ -130,13 +130,13 @@ const ID_UPDATES_TOO_LONG: u32 = 0xe317af7e;
 // Keepalive / reconnect tuning
 
 /// How often to send a keepalive ping.
-/// 60 s matches grammers and Telegram Desktop long-poll cadence.
+/// 60 s matches  and Telegram Desktop long-poll cadence.
 /// At 1 M connections this is 4× less keepalive traffic than 15 s.
 const PING_DELAY_SECS: u64 = 60;
 
 /// Tell Telegram to close the connection if it hears nothing for this many
 /// seconds.  Must be > PING_DELAY_SECS so a single missed ping doesn't drop us.
-/// 75 s = 60 s interval + 15 s slack, matching grammers.
+/// 75 s = 60 s interval + 15 s slack, matching .
 const NO_PING_DISCONNECT: i32 = 75;
 
 /// Initial backoff before the first reconnect attempt.
@@ -249,8 +249,8 @@ impl PeerCache {
 /// use layer_client::InputMessage;
 ///
 /// let msg = InputMessage::text("Hello, *world*!")
-///   .silent(true)
-///   .reply_to(Some(42));
+/// .silent(true)
+/// .reply_to(Some(42));
 /// ```
 #[derive(Clone, Default)]
 pub struct InputMessage {
@@ -351,8 +351,8 @@ impl InputMessage {
     /// use layer_client::{InputMessage, keyboard::{InlineKeyboard, Button}};
     ///
     /// let msg = InputMessage::text("Pick one:")
-    ///   .keyboard(InlineKeyboard::new()
-    ///       .row([Button::callback("A", b"a"), Button::callback("B", b"b")]));
+    /// .keyboard(InlineKeyboard::new()
+    ///     .row([Button::callback("A", b"a"), Button::callback("B", b"b")]));
     /// ```
     pub fn keyboard(mut self, kb: impl Into<tl::enums::ReplyMarkup>) -> Self {
         self.reply_markup = Some(kb.into());
@@ -377,7 +377,7 @@ impl InputMessage {
     /// # use layer_client::{InputMessage, tl};
     /// # fn example(media: tl::enums::InputMedia) {
     /// let msg = InputMessage::text("Here is the file again")
-    ///   .copy_media(media);
+    /// .copy_media(media);
     /// # }
     /// ```
     pub fn copy_media(mut self, media: tl::enums::InputMedia) -> Self {
@@ -502,7 +502,7 @@ pub struct Config {
     /// Session persistence backend (default: binary file `"layer.session"`).
     pub session_backend: Arc<dyn crate::session_backend::SessionBackend>,
     /// If `true`, replay missed updates via `updates.getDifference` immediately
-    /// after connecting. Mirrors grammers' `UpdatesConfiguration { catch_up: true }`.
+    /// after connecting.
     /// Default: `false`.
     pub catch_up: bool,
 }
@@ -516,10 +516,10 @@ impl Config {
     /// # Example
     /// ```rust,no_run
     /// let cfg = Config {
-    ///   api_id:   12345,
-    ///   api_hash: "abc".into(),
-    ///   catch_up: true,
-    ///   ..Config::with_string_session(std::env::var("SESSION").unwrap_or_default())
+    /// api_id:   12345,
+    /// api_hash: "abc".into(),
+    /// catch_up: true,
+    /// ..Config::with_string_session(std::env::var("SESSION").unwrap_or_default())
     /// };
     /// ```
     pub fn with_string_session(s: impl Into<String>) -> Self {
@@ -708,11 +708,11 @@ impl Client {
     /// # use layer_client::Client;
     /// # #[tokio::main] async fn main() -> anyhow::Result<()> {
     /// let (client, _shutdown) = Client::builder()
-    ///   .api_id(12345)
-    ///   .api_hash("abc123")
-    ///   .session("my.session")
-    ///   .catch_up(true)
-    ///   .connect().await?;
+    /// .api_id(12345)
+    /// .api_hash("abc123")
+    /// .session("my.session")
+    /// .catch_up(true)
+    /// .connect().await?;
     /// # Ok(()) }
     /// ```
     pub fn builder() -> crate::builder::ClientBuilder {
@@ -780,7 +780,7 @@ impl Client {
                                     (c, s.home_dc_id, opts, Some(s))
                                 }
                                 Err(e) => {
-                                    // S1 fix: never call fresh_connect on a TCP blip during
+                                    // never call fresh_connect on a TCP blip during
                                     // startup: that would silently destroy the saved session
                                     // by switching to DC2 with a fresh key.  Return the error
                                     // so the caller gets a clear failure and can retry or
@@ -946,7 +946,7 @@ impl Client {
                 let socks5_r = client.inner.socks5.clone();
                 let transport_r = client.inner.transport.clone();
 
-                // S1 fix: reconnect to the HOME DC with fresh DH, not DC2.
+                // reconnect to the HOME DC with fresh DH, not DC2.
                 // fresh_connect() was hardcoded to DC2 and wiped all learned DC state,
                 // which is why sessions on DC3/DC4/DC5 were corrupted on every -404.
                 let home_dc_id_r = *client.inner.home_dc_id.lock().await;
@@ -983,7 +983,7 @@ impl Client {
                 tokio::task::yield_now().await;
 
                 // Brief pause so the new key propagates to all of Telegram's
-                // app servers before we send getDifference (same reason grammers
+                // app servers before we send getDifference (same reason
                 // does a yield after fresh DH before any RPCs).
                 tokio::time::sleep(std::time::Duration::from_secs(2)).await;
 
@@ -1027,11 +1027,11 @@ impl Client {
         //
         // Two modes:
         // catch_up=false → always call sync_pts_state() so we start from
-        //                  the current server state (ignore saved pts).
+        //                the current server state (ignore saved pts).
         // catch_up=true  → if we have a saved pts > 0, restore it and let
-        //                  get_difference() fetch what we missed.  Only fall
-        //                  back to sync_pts_state() when there is no saved
-        //                  state (first boot, or fresh session).
+        //                get_difference() fetch what we missed.  Only fall
+        //                back to sync_pts_state() when there is no saved
+        //                state (first boot, or fresh session).
         let has_saved_state = loaded_session
             .as_ref()
             .is_some_and(|s| s.updates_state.is_initialised());
@@ -1550,12 +1550,12 @@ impl Client {
     // Restart sequence on unexpected exit:
     // 1. Drain all pending RPCs with ConnectionReset so callers unblock.
     // 2. Exponential-backoff reconnect loop (500 ms → 30 s cap) until TCP
-    //    succeeds, respecting the shutdown token at every sleep point.
+    //  succeeds, respecting the shutdown token at every sleep point.
     // 3. Spawn init_connection in a background task (same deadlock-safe
-    //    pattern as do_reconnect_loop) and pass the oneshot receiver as the
-    //    initial_init_rx to the restarted reader_loop.
+    //  pattern as do_reconnect_loop) and pass the oneshot receiver as the
+    //  initial_init_rx to the restarted reader_loop.
     // 4. reader_loop picks up init_rx immediately on its first iteration and
-    //    handles success/failure exactly like a mid-session reconnect.
+    //  handles success/failure exactly like a mid-session reconnect.
     #[allow(clippy::too_many_arguments)]
     async fn run_reader_task(
         &self,
@@ -1618,7 +1618,7 @@ impl Client {
                     ))));
                 }
             }
-            // Fix #9: drain sent_bodies alongside pending to prevent unbounded growth.
+            // drain sent_bodies alongside pending to prevent unbounded growth.
             self.inner.writer.lock().await.sent_bodies.clear();
 
             // Step 2: reconnect with exponential backoff, honouring shutdown.
@@ -1703,9 +1703,7 @@ impl Client {
                     };
                     for u in missed {
                         if utx.try_send(u).is_err() {
-                            tracing::warn!(
-                                "[layer] update channel full: dropping catch-up update"
-                            );
+                            tracing::warn!("[layer] update channel full: dropping catch-up update");
                             break;
                         }
                     }
@@ -1784,7 +1782,7 @@ impl Client {
                                     continue;
                                 }
                             };
-                            // DIFF-08: grammers discards the frame-level salt entirely
+                            //  discards the frame-level salt entirely
                             // (it's not the "server salt" we should use: that only comes
                             // from new_session_created, bad_server_salt, or future_salts).
                             // Overwriting enc.salt here would clobber the managed salt pool.
@@ -1792,7 +1790,7 @@ impl Client {
 
                             //: Acks are NOT flushed here standalone.
                             // They accumulate in pending_ack and are bundled into the next
-                            // outgoing request container, matching grammers' behavior and
+                            // outgoing request container
                             // avoiding an extra standalone frame (and extra RTT exposure).
                         }
 
@@ -1850,7 +1848,7 @@ impl Client {
                                             std::io::ErrorKind::ConnectionReset, msg.clone()))));
                                 }
                             }
-                            // Fix #9: drain sent_bodies so it doesn't grow unbounded under loss.
+                            // drain sent_bodies so it doesn't grow unbounded under loss.
                             self.inner.writer.lock().await.sent_bodies.clear();
 
                             // Skip backoff when the key is stale: no point waiting before
@@ -1896,7 +1894,7 @@ impl Client {
                     match init_result {
                         Ok(Ok(())) => {
                             init_fail_count = 0;
-                            // S3 fix: do NOT save_session here.
+                            // do NOT save_session here.
                             // Grammers never persists the session after a plain TCP
                             // reconnect: only when a genuinely new auth key is
                             // generated (fresh DH).  Writing here was the mechanism
@@ -2014,7 +2012,7 @@ impl Client {
                     let to_send = match result {
                         Ok(EnvelopeResult::Payload(p)) => Ok(p),
                         Ok(EnvelopeResult::RawUpdates(bodies)) => {
-                            // BUG-FIX: route through dispatch_updates so pts/seq is
+                            // route through dispatch_updates so pts/seq is
                             // properly tracked. Previously updates were sent directly
                             // to update_tx, skipping pts tracking -> false gap ->
                             // getDifference -> duplicate deliveries.
@@ -2099,9 +2097,8 @@ impl Client {
                     let bad_msg_id = i64::from_le_bytes(body[4..12].try_into().unwrap());
                     let new_salt = i64::from_le_bytes(body[20..28].try_into().unwrap());
 
-                    // DIFF-03: grammers clears the salt pool and inserts new_server_salt
+                    // clear the salt pool and insert new_server_salt
                     // with valid_until=i32::MAX, then updates the active session salt.
-                    // grammers ref: handle_bad_server_salt() salts.clear() + push.
                     {
                         let mut w = self.inner.writer.lock().await;
                         w.salts.clear();
@@ -2117,10 +2114,9 @@ impl Client {
                     );
 
                     // Re-transmit the original request under the new salt.
-                    // DIFF-11: if bad_msg_id is not in sent_bodies directly, check
+                    // if bad_msg_id is not in sent_bodies directly, check
                     // container_map: the server may have sent the notification for
                     // the outer container msg_id rather than the inner request msg_id.
-                    // grammers ref: process_bad_message() pair.container_msg_id check.
                     {
                         let mut w = self.inner.writer.lock().await;
 
@@ -2178,8 +2174,8 @@ impl Client {
                 // pong#347773c5  msg_id:long  ping_id:long
                 // body[4..12] = msg_id of the original Ping → key in pending map
                 //
-                // DIFF-05: pong has odd seq_no (content-related) → must ack it.
-                // grammers: process_message() pushes every message with seq_no%2==1.
+                // pong has odd seq_no (content-related) → must ack it.
+                // : process_message() pushes every message with seq_no%2==1.
                 if body.len() >= 20 {
                     let ping_msg_id = i64::from_le_bytes(body[4..12].try_into().unwrap());
                     // Ack the pong frame itself (outer msg_id, not the ping msg_id).
@@ -2193,7 +2189,7 @@ impl Client {
                     }
                 }
             }
-            // DIFF-03/09/05: FutureSalts: full grammers-style salt pool
+            // FutureSalts: full -style salt pool
             ID_FUTURE_SALTS => {
                 // future_salts#ae500895
                 // [0..4]   constructor
@@ -2202,13 +2198,13 @@ impl Client {
                 // [16..20] vector constructor 0x1cb5c415
                 // [20..24] count (int)
                 // per entry (bare FutureSalt, no constructor):
-                //   [+0..+4]  valid_since (int)
-                //   [+4..+8]  valid_until (int)
-                //   [+8..+16] salt (long)
+                // [+0..+4]  valid_since (int)
+                // [+4..+8]  valid_until (int)
+                // [+8..+16] salt (long)
                 // first entry starts at byte 24
                 //
-                // DIFF-05: FutureSalts has odd seq_no → must ack.
-                // grammers: process_message() pushes every msg with seq_no%2==1.
+                // FutureSalts has odd seq_no → must ack.
+                // : process_message() pushes every msg with seq_no%2==1.
                 self.inner.writer.lock().await.pending_ack.push(msg_id);
 
                 if body.len() >= 24 {
@@ -2216,7 +2212,7 @@ impl Client {
                     let server_now = i32::from_le_bytes(body[12..16].try_into().unwrap());
                     let count = u32::from_le_bytes(body[20..24].try_into().unwrap()) as usize;
 
-                    // DIFF-03/09: Parse ALL returned salts (grammers stores the full Vec).
+                    // Parse ALL returned salts ( stores the full Vec).
                     // Each FutureSalt entry is 16 bytes starting at offset 24.
                     let mut new_salts: Vec<FutureSalt> = Vec::with_capacity(count);
                     for i in 0..count {
@@ -2241,7 +2237,7 @@ impl Client {
                     }
 
                     if !new_salts.is_empty() {
-                        // Sort newest-last (mirrors grammers sort_by_key(|s| -s.valid_since)
+                        // Sort newest-last (mirrors  sort_by_key(|s| -s.valid_since)
                         // which in ascending order puts highest valid_since at the end).
                         new_salts.sort_by_key(|s| s.valid_since);
                         let mut w = self.inner.writer.lock().await;
@@ -2252,7 +2248,6 @@ impl Client {
                         // A salt is usable after valid_since + SALT_USE_DELAY (60 s).
                         // Walk newest-to-oldest (end of vec to start) and pick the
                         // first one whose use-delay window has already opened.
-                        // grammers reference: Sender::get_salt() logic.
                         let use_salt = w
                             .salts
                             .iter()
@@ -2263,7 +2258,7 @@ impl Client {
                         if let Some(salt) = use_salt {
                             w.enc.salt = salt;
                             tracing::debug!(
-                                "[layer] DIFF-09 FutureSalts: stored {} salts, \
+                                "[layer] FutureSalts: stored {} salts, \
                                  active salt={salt:#x}",
                                 w.salts.len()
                             );
@@ -2287,12 +2282,11 @@ impl Client {
                 if body.len() >= 28 {
                     let server_salt = i64::from_le_bytes(body[20..28].try_into().unwrap());
                     let mut w = self.inner.writer.lock().await;
-                    // DIFF-05: new_session_created has odd seq_no → must ack.
-                    // grammers: process_message() pushes every msg with seq_no%2==1.
+                    // new_session_created has odd seq_no → must ack.
+                    // : process_message() pushes every msg with seq_no%2==1.
                     w.pending_ack.push(msg_id);
-                    // DIFF-03: grammers clears the salt pool and inserts the fresh
+                    //  clears the salt pool and inserts the fresh
                     // server_salt with valid_until=i32::MAX (permanently valid).
-                    // grammers ref: handle_new_session_created() salts.clear() + push.
                     w.salts.clear();
                     w.salts.push(FutureSalt {
                         valid_since: 0,
@@ -2314,7 +2308,7 @@ impl Client {
                 let bad_msg_id = i64::from_le_bytes(body[4..12].try_into().unwrap());
                 let error_code = u32::from_le_bytes(body[16..20].try_into().unwrap());
 
-                // grammers description strings for each code
+                //  description strings for each code
                 let description = match error_code {
                     16 => "msg_id too low",
                     17 => "msg_id too high",
@@ -2330,7 +2324,7 @@ impl Client {
                     _ => "unknown bad_msg code",
                 };
 
-                // grammers: retryable=[16,17,48], non-fatal-non-retryable=[32,33], fatal=rest
+                // : retryable=[16,17,48], non-fatal-non-retryable=[32,33], fatal=rest
                 let retryable = matches!(error_code, 16 | 17 | 48);
                 let fatal = !retryable && !matches!(error_code, 32 | 33);
 
@@ -2362,10 +2356,9 @@ impl Client {
                     }
 
                     if retryable {
-                        // DIFF-11: if bad_msg_id is not in sent_bodies directly, check
+                        // if bad_msg_id is not in sent_bodies directly, check
                         // container_map: the server sends the notification for the
                         // outer container msg_id when a whole container was bad.
-                        // grammers ref: process_bad_message() pair.container_msg_id check.
                         let resolved_id = if w.sent_bodies.contains_key(&bad_msg_id) {
                             bad_msg_id
                         } else if let Some(&inner_id) = w.container_map.get(&bad_msg_id) {
@@ -2464,9 +2457,7 @@ impl Client {
                         .await
                         .pending_ack
                         .push(answer_msg_id);
-                    tracing::trace!(
-                        "[layer] MsgNewDetailedInfo: queued ack for {answer_msg_id}"
-                    );
+                    tracing::trace!("[layer] MsgNewDetailedInfo: queued ack for {answer_msg_id}");
                 }
             }
             // MsgResendReq → re-send the requested msg_ids
@@ -2495,18 +2486,14 @@ impl Client {
                             drop(pending);
                             w.sent_bodies.insert(new_id, orig_body);
                             send_frame_write(&mut w.write_half, &wire, &fk).await.ok();
-                            tracing::debug!(
-                                "[layer] MsgResendReq: resent {resend_id} → {new_id}"
-                            );
+                            tracing::debug!("[layer] MsgResendReq: resent {resend_id} → {new_id}");
                         }
                     }
                 }
             }
             // log DestroySession outcomes
             0xe22045fc => {
-                tracing::warn!(
-                    "[layer] destroy_session_ok received: session terminated by server"
-                );
+                tracing::warn!("[layer] destroy_session_ok received: session terminated by server");
             }
             0x62d350c9 => {
                 tracing::warn!("[layer] destroy_session_none received: session was already gone");
@@ -2527,12 +2514,12 @@ impl Client {
         }
     }
 
-    // Fix B1: sort updates by pts-count key before dispatching
-    // Fix B5: make seq check synchronous and gating
+    // sort updates by pts-count key before dispatching
+    // make seq check synchronous and gating
 
     /// Extract the pts-sort key for a single update: `pts - pts_count`.
     ///
-    /// Fix B1: grammers sorts every update batch by this key before processing.
+    ///sorts every update batch by this key before processing.
     /// Without the sort, a container arriving as [pts=5, pts=3, pts=4] produces
     /// a false gap on the first item (expected 3, got 5) and spuriously fires
     /// getDifference even though the filling updates are present in the same batch.
@@ -2582,7 +2569,7 @@ impl Client {
             return;
         }
 
-        // BUG-FIX: updateShortMessage (0x313bc7f8) and updateShortChatMessage (0x4d6deea5)
+        // updateShortMessage (0x313bc7f8) and updateShortChatMessage (0x4d6deea5)
         // carry pts/pts_count but the old code forwarded them directly to update_tx WITHOUT
         // calling check_and_fill_gap. That left the internal pts counter frozen, so the
         // next updateNewMessage (e.g. the bot's own reply) triggered a false gap ->
@@ -2655,7 +2642,7 @@ impl Client {
             return;
         }
 
-        // BUG-FIX: updateShortSentMessage push: advance pts without emitting an Update.
+        // updateShortSentMessage push: advance pts without emitting an Update.
         // Telegram can also PUSH updateShortSentMessage (not just in RPC responses).
         // Same fix: extract pts and route through check_and_fill_gap.
         if cid == ID_UPDATE_SHORT_SENT_MSG {
@@ -2693,7 +2680,7 @@ impl Client {
             return;
         }
 
-        // Fix B5: Seq check must be synchronous and act as a gate for the whole
+        // Seq check must be synchronous and act as a gate for the whole
         // container.  The old approach spawned a task concurrently with dispatching
         // the individual updates, meaning seq could be advanced over an unclean batch.
         // Grammers only advances seq after the full update loop completes with no
@@ -2781,7 +2768,7 @@ impl Client {
                 .await;
         }
 
-        // Fix B5: synchronous seq gate: check before processing any updates.
+        // synchronous seq gate: check before processing any updates.
         if let Some((seq, seq_start)) = parsed.seq_info
             && seq != 0
         {
@@ -2827,7 +2814,7 @@ impl Client {
 
         let mut raw: Vec<tl::enums::Update> = parsed.updates;
 
-        // Fix B1: sort by (pts - pts_count) before dispatching: mirrors grammers'
+        // sort by (pts - pts_count) before dispatching:
         // updates.sort_by_key(update_sort_key).  Without this, an out-of-order batch
         // like [pts=5, pts=3, pts=4] falsely detects a gap on the first update and
         // fires getDifference even though the filling updates are in the same container.
@@ -2837,8 +2824,8 @@ impl Client {
             self.dispatch_single_update(upd).await;
         }
 
-        // Fix B5: advance seq AFTER the full batch has been dispatched: mirrors
-        // grammers' post-loop seq advance that only fires when !have_unresolved_gaps.
+        // advance seq AFTER the full batch has been dispatched: mirrors
+        // ' post-loop seq advance that only fires when !have_unresolved_gaps.
         // (In our spawn-per-update model we can't track unresolved gaps inline, but
         // advancing here at minimum prevents premature seq advancement before the
         // container's pts checks have even been spawned.)
@@ -3103,7 +3090,7 @@ impl Client {
                             // After fresh DH the new key may not have propagated to
                             // all of Telegram's app servers yet, so getDifference can
                             // return AUTH_KEY_UNREGISTERED (401).  A 2 s pause lets the
-                            // key replicate before we send any RPCs (same reason grammers
+                            // key replicate before we send any RPCs (same reason
                             // yields after fresh DH).  Without this, post-reconnect RPC
                             // calls silently fail and the bot stops responding.
                             if c.inner
@@ -3195,7 +3182,7 @@ impl Client {
             {
                 Ok(c) => c,
                 Err(e) => {
-                    // S2 fix: a TCP failure during reconnect does NOT warrant a
+                    // a TCP failure during reconnect does NOT warrant a
                     // fresh DH handshake (which generates a new auth key and
                     // orphans the old one still registered on Telegram's servers).
                     // Return the error: do_reconnect_loop will back off and retry
@@ -3212,13 +3199,12 @@ impl Client {
         let new_sid = new_writer.enc.session_id();
         *self.inner.writer.lock().await = new_writer;
 
-        // DIFF-15: The new writer is fresh (new EncryptedSession) but
+        // The new writer is fresh (new EncryptedSession) but
         // salt_request_in_flight lives on self.inner and is never reset
         // automatically.  If a GetFutureSalts was in flight when the
         // disconnect happened the flag stays `true` forever, preventing any
         // future proactive salt refreshes.  Reset it here so the first
         // bad_server_salt after reconnect can spawn a new request.
-        // grammers ref: salt_request_msg_id is always cleared on reconnect
         // because the entire Sender is recreated.
         self.inner
             .salt_request_in_flight
@@ -3719,7 +3705,7 @@ impl Client {
     /// Forward messages and return the forwarded copies.
     ///
     /// Like [`forward_messages`] but parses the Updates response and returns
-    /// the new messages in the destination chat, matching grammers behaviour.
+    /// the new messages in the destination chat, matching  behaviour.
     pub async fn forward_messages_returning(
         &self,
         destination: impl Into<PeerRef>,
@@ -3940,7 +3926,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, msg: layer_client::update::IncomingMessage)
     /// #   -> Result<(), layer_client::InvocationError> {
     /// if let Some(replied) = client.get_reply_to_message(&msg).await? {
-    ///   println!("Replied to: {:?}", replied.text());
+    /// println!("Replied to: {:?}", replied.text());
     /// }
     /// # Ok(()) }
     /// ```
@@ -4053,7 +4039,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, peer: layer_tl_types::enums::Peer) -> Result<(), Box<dyn std::error::Error>> {
     /// let scheduled = client.get_scheduled_messages(peer).await?;
     /// for msg in &scheduled {
-    ///   println!("Scheduled: {:?} at {:?}", msg.text(), msg.date());
+    /// println!("Scheduled: {:?} at {:?}", msg.text(), msg.date());
     /// }
     /// # Ok(()) }
     /// ```
@@ -4533,7 +4519,7 @@ impl Client {
     /// ```rust,no_run
     /// # async fn f(client: layer_client::Client, msg: layer_client::update::IncomingMessage) -> Result<(), Box<dyn std::error::Error>> {
     /// if let Some(loc) = msg.download_location() {
-    ///   client.download_media_to_file(loc, "/tmp/file.jpg").await?;
+    /// client.download_media_to_file(loc, "/tmp/file.jpg").await?;
     /// }
     /// # Ok(()) }
     /// ```
@@ -4750,7 +4736,6 @@ impl Client {
     /// Called from `do_rpc_call` (proactive, pool size <= 1) and from the
     /// `bad_server_salt` handler (reactive, after salt pool reset).
     ///
-    /// grammers reference: `try_request_salts()` in `mtp/encrypted.rs`.
     fn spawn_salt_fetch_if_needed(&self) {
         if self
             .inner
@@ -4830,7 +4815,7 @@ impl Client {
     ///3. Send the frame while holding the writer lock.
     ///4. Release the writer lock immediately: the reader task now runs freely.
     ///5. Await the oneshot Receiver; the reader task will fulfill it when
-    ///   the matching rpc_result frame arrives.
+    /// the matching rpc_result frame arrives.
     async fn do_rpc_call<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
         let (tx, rx) = oneshot::channel();
         {
@@ -4840,7 +4825,7 @@ impl Client {
 
             let mut w = self.inner.writer.lock().await;
 
-            // Proactive salt cycling on every send (grammers: Encrypted::push() prelude).
+            // Proactive salt cycling on every send (: Encrypted::push() prelude).
             // Prunes expired salts, cycles enc.salt to newest usable entry,
             // and triggers a background GetFutureSalts when pool shrinks to 1.
             if w.advance_salt_if_needed() {
@@ -4878,11 +4863,10 @@ impl Client {
                 // Encrypt the container as a non-content-related outer message.
                 // pack_container now returns (wire, container_msg_id) so we can
                 // register the mapping for bad_msg_notification recovery.
-                // grammers ref: MsgIdPair { msg_id: req_msg_id, container_msg_id }
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
 
                 w.sent_bodies.insert(req_msg_id, body); //
-                w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
+                w.container_map.insert(container_msg_id, req_msg_id); // 
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
                 tracing::debug!(
@@ -4955,7 +4939,7 @@ impl Client {
                 ]);
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
                 w.sent_bodies.insert(req_msg_id, body); //
-                w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
+                w.container_map.insert(container_msg_id, req_msg_id); // 
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
                 tracing::debug!(
@@ -5227,7 +5211,7 @@ impl Client {
                 ]);
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
                 w.sent_bodies.insert(req_msg_id, body); //
-                w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
+                w.container_map.insert(container_msg_id, req_msg_id); // 
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
             }
@@ -5250,7 +5234,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client) -> Result<(), Box<dyn std::error::Error>> {
     /// let mut iter = client.iter_dialogs();
     /// while let Some(dialog) = iter.next(&client).await? {
-    ///   println!("{}", dialog.title());
+    /// println!("{}", dialog.title());
     /// }
     /// # Ok(()) }
     /// ```
@@ -5274,7 +5258,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, peer: layer_tl_types::enums::Peer) -> Result<(), Box<dyn std::error::Error>> {
     /// let mut iter = client.iter_messages(peer);
     /// while let Some(msg) = iter.next(&client).await? {
-    ///   println!("{:?}", msg.text());
+    /// println!("{:?}", msg.text());
     /// }
     /// # Ok(()) }
     /// ```
@@ -5713,7 +5697,6 @@ enum FrameKind {
 /// Write half of a split connection.  Held under `Mutex` in `ClientInner`.
 /// A single server-provided salt with its validity window.
 ///
-/// grammers reference: `mtp/encrypted.rs FutureSalt`
 #[derive(Clone, Debug)]
 struct FutureSalt {
     valid_since: i32,
@@ -5722,7 +5705,7 @@ struct FutureSalt {
 }
 
 /// Delay (seconds) before a salt is considered usable after its `valid_since`.
-/// Mirrors grammers' `SALT_USE_DELAY = 60`.
+///
 const SALT_USE_DELAY: i32 = 60;
 
 /// Owns the EncryptedSession (for packing) and the pending-RPC map.
@@ -5738,23 +5721,21 @@ struct ConnectionWriter {
     /// On bad_msg_notification the matching body is re-encrypted with a fresh
     /// msg_id and re-sent transparently.
     sent_bodies: std::collections::HashMap<i64, Vec<u8>>,
-    /// DIFF-11: maps container_msg_id → inner request msg_id.
+    /// maps container_msg_id → inner request msg_id.
     /// When bad_msg_notification / bad_server_salt arrives for a container
     /// rather than the individual inner message, we look here to find the
     /// inner request to retry.
     ///
-    /// grammers reference: `MsgIdPair { msg_id, container_msg_id }`
     container_map: std::collections::HashMap<i64, i64>,
-    /// DIFF-03/09: grammers-style future salt pool.
+    /// -style future salt pool.
     /// Sorted by valid_since ascending so the newest salt is LAST
-    /// (mirrors grammers' sort_by_key(|s| -s.valid_since), which puts
+    /// (.valid_since), which puts
     /// the highest valid_since at the end in ascending-key order).
     salts: Vec<FutureSalt>,
     /// Server-time anchor received with the last GetFutureSalts response.
     /// (server_now, local_instant) lets us approximate server time at any
     /// moment so we can check whether a salt's valid_since window has opened.
     ///
-    /// grammers reference: `mtp/encrypted.rs start_salt_time`
     start_salt_time: Option<(i32, std::time::Instant)>,
 }
 
@@ -5771,7 +5752,7 @@ impl ConnectionWriter {
 
     /// Proactively advance the active salt and prune expired ones.
     ///
-    /// Called at the top of every RPC send, mirroring grammers' `push()` prelude.
+    /// Called at the top of every RPC send.
     /// Salts are sorted ascending by `valid_since` (oldest=index 0, newest=last).
     ///
     /// Steps performed:
@@ -5781,8 +5762,7 @@ impl ConnectionWriter {
     /// Returns `true` when the pool has shrunk to a single entry: caller should
     /// fire a proactive `GetFutureSalts`.
     ///
-    /// grammers reference: `mtp/encrypted.rs Encrypted::push()` prelude +
-    ///                    `try_request_salts()`.
+    ///                  `try_request_salts()`.
     fn advance_salt_if_needed(&mut self) -> bool {
         let Some((server_now, start_instant)) = self.start_salt_time else {
             return self.salts.len() <= 1;
@@ -5912,15 +5892,15 @@ impl Connection {
             TransportKind::Obfuscated { secret } => {
                 // Correct Obfuscated2 handshake (all 3 bugs fixed)
                 //
-                // Bug A fix: use AES-256-CTR via layer_crypto::ObfuscatedCipher,
-                //          not the broken SHA-256 XOR ObfCipher.
+                // use AES-256-CTR via layer_crypto::ObfuscatedCipher,
+                //        not the broken SHA-256 XOR ObfCipher.
                 //
-                // Bug B fix: ObfuscatedCipher::new reverses the WHOLE 64-byte
-                //          nonce buffer to derive the RX key, not sub-slices.
+                // ObfuscatedCipher::new reverses the WHOLE 64-byte
+                //        nonce buffer to derive the RX key, not sub-slices.
                 //
-                // Bug C fix: encrypt ALL 64 bytes so the cipher is at position 64
-                //          after the handshake; the cipher is STORED and applied
-                //          to every byte sent/received afterwards.
+                // encrypt ALL 64 bytes so the cipher is at position 64
+                //        after the handshake; the cipher is STORED and applied
+                //        to every byte sent/received afterwards.
                 //
                 // Proxy secret is reserved for future MTProxy support.
                 let _ = secret; // not yet used
@@ -6135,7 +6115,7 @@ enum FrameOutcome {
 /// If the timeout fires we send a `PingDelayDisconnect`: this tells Telegram
 /// to forcibly close the connection after `NO_PING_DISCONNECT` seconds of
 /// silence, giving us a clean EOF to detect rather than a silently stale socket.
-/// That mirrors what both grammers and the official Telegram clients do.
+/// That mirrors what both  and the official Telegram clients do.
 async fn recv_frame_with_keepalive(
     rh: &mut OwnedReadHalf,
     fk: &FrameKind,
@@ -6174,7 +6154,7 @@ async fn recv_frame_with_keepalive(
 
 /// Send a framed message via an OwnedWriteHalf (split connection).
 ///
-/// Fix #1: Header and payload are combined into a single Vec before calling
+/// Header and payload are combined into a single Vec before calling
 /// write_all, reducing write syscalls from 2 → 1 per frame.  With Abridged
 /// framing this previously sent a 1-byte header then the payload in separate
 /// syscalls (and two TCP segments even with TCP_NODELAY on fast paths).
@@ -6213,7 +6193,7 @@ async fn send_frame_write(
             Ok(())
         }
         FrameKind::Obfuscated { cipher } => {
-            // Abridged framing + AES-256-CTR encryption (Bug C fix: cipher stored).
+            // Abridged framing + AES-256-CTR encryption (cipher stored).
             let words = data.len() / 4;
             let mut frame = if words < 0x7f {
                 let mut v = Vec::with_capacity(1 + data.len());
@@ -6273,7 +6253,7 @@ async fn recv_frame_read(
             let mut len_buf = [0u8; 4];
             stream.read_exact(&mut len_buf).await?;
             // Read as i32 so a negative length (raw transport error code) doesn't
-            // cause a ~4 GB allocation via u32 cast. Matches grammers' intermediate.
+            // cause a ~4 GB allocation via u32 cast. Matches ' intermediate.
             let len_i32 = i32::from_le_bytes(len_buf);
             if len_i32 < 0 {
                 return Err(InvocationError::Rpc(RpcError::from_telegram(
@@ -6298,7 +6278,7 @@ async fn recv_frame_read(
         }
         FrameKind::Obfuscated { cipher } => {
             // Obfuscated2: Abridged framing with AES-256-CTR decryption.
-            // Bug C fix: cipher is stored and continues from where handshake left off.
+            // cipher is stored and continues from where handshake left off.
             let mut h = [0u8; 1];
             stream.read_exact(&mut h).await?;
             cipher.lock().await.decrypt(&mut h);
@@ -6521,7 +6501,7 @@ fn unwrap_envelope(body: Vec<u8>) -> Result<EnvelopeResult, InvocationError> {
         // top-level frame (never inside rpc_result), so it is handled in route_frame
         // directly. Silencing it here would drop it before invoke() can resolve it.
         ID_MSGS_ACK | ID_NEW_SESSION | ID_BAD_SERVER_SALT | ID_BAD_MSG_NOTIFY
-        // These are correctly silenced (grammers silences these too)
+        // These are correctly silenced ( silences these too)
         | 0xd33b5459  // MsgsStateReq
         | 0x04deb57d  // MsgsStateInfo
         | 0x8cc0d131  // MsgsAllInfo
@@ -6546,7 +6526,7 @@ fn unwrap_envelope(body: Vec<u8>) -> Result<EnvelopeResult, InvocationError> {
         | ID_UPDATES_TOO_LONG => {
             Ok(EnvelopeResult::RawUpdates(vec![body]))
         }
-        // BUG-FIX: updateShortSentMessage is the RPC response to messages.sendMessage.
+        // updateShortSentMessage is the RPC response to messages.sendMessage.
         // It carries the ONLY pts record for the bot's own sent message.
         // Bots do NOT receive a push updateNewMessage for their own messages,
         // so if we absorb this silently, pts stays stale -> false gap -> getDifference

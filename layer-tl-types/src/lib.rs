@@ -19,10 +19,10 @@
 //! use layer_tl_types::{functions, Serializable};
 //!
 //! let req = functions::auth::SendCode {
-//!   phone_number: "+1234567890".into(),
-//!   api_id: 12345,
-//!   api_hash: "abc".into(),
-//!   settings: Default::default(),
+//! phone_number: "+1234567890".into(),
+//! api_id: 12345,
+//! api_hash: "abc".into(),
+//! settings: Default::default(),
 //! };
 //!
 //! let bytes = req.to_bytes();

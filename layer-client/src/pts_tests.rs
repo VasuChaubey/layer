@@ -1,6 +1,4 @@
-//! Unit tests for PtsState gap detection logic.
-//!
-//! Fix #8: grammers has 631 lines of gap-logic tests; Layer had zero.
+//! Unit tests for PtsState gap detection and recovery logic.
 //! These tests use a pure synchronous PtsState (no async, no mocks needed)
 //! so they run instantly without any network or tokio overhead.
 
@@ -197,7 +195,7 @@ mod tests {
         assert_eq!(state.channel_pts[&7], 90);
     }
 
-    // getting_diff_for guard (Fix #4)
+    // getting_diff_for guard ()
 
     #[test]
     fn getting_diff_for_starts_empty() {

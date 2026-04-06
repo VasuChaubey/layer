@@ -188,7 +188,7 @@ impl Client {
     /// #            dest: layer_tl_types::enums::Peer) -> Result<(), layer_client::InvocationError> {
     /// let mut iter = client.inline_query(bot, "hello").await?;
     /// while let Some(r) = iter.next().await? {
-    ///   println!("{}", r.title().unwrap_or("(no title)"));
+    /// println!("{}", r.title().unwrap_or("(no title)"));
     /// }
     /// # Ok(()) }
     /// ```

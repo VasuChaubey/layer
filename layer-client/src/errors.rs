@@ -1,6 +1,6 @@
 //! Error types for layer-client.
 //!
-//! Mirrors `grammers_mtsender` error hierarchy for API compatibility.
+//! Error types for invoke and I/O failures.
 
 use std::{fmt, io};
 

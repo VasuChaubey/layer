@@ -6,7 +6,7 @@
 //! Run with:
 //! cargo test -p layer-client --test integration
 //!
-//! Ported/inspired by grammers' test patterns. Tests are grouped by module:
+//! Ported/inspired by ' test patterns. Tests are grouped by module:
 //! - `retry`        : RetryPolicy and RetryLoop behaviour
 //! - `session`      : SessionBackend implementations
 //! - `dc_migration` : fallback addresses, DcAuthTracker

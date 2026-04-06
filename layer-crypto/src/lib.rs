@@ -258,14 +258,14 @@ fn prime_residue(bytes: &[u8], modulus: u64) -> u64 {
 /// 3. `dh_prime` matches Telegram's published safe prime exactly.
 /// 4. `g` ∈ {2, 3, 4, 5, 6, 7}.
 /// 5. The residue condition for `g` and the prime holds:
-///  | g | condition           |
-///  |---|---------------------|
-///  | 2 | p mod 8 = 7         |
-///  | 3 | p mod 3 = 2         |
-///  | 4 | always valid        |
-///  | 5 | p mod 5 ∈ {1, 4}    |
-///  | 6 | p mod 24 ∈ {19, 23} |
-///  | 7 | p mod 7 ∈ {3, 5, 6} |
+///| g | condition           |
+///|---|---------------------|
+///| 2 | p mod 8 = 7         |
+///| 3 | p mod 3 = 2         |
+///| 4 | always valid        |
+///| 5 | p mod 5 ∈ {1, 4}    |
+///| 6 | p mod 24 ∈ {19, 23} |
+///| 7 | p mod 7 ∈ {3, 5, 6} |
 pub fn check_p_and_g(dh_prime: &[u8], g: u32) -> Result<(), DhError> {
     // 1. Length
     if dh_prime.len() != 256 {

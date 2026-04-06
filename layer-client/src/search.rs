@@ -5,13 +5,13 @@
 //! # async fn f(client: layer_client::Client, peer: layer_tl_types::enums::Peer)
 //! # -> Result<(), Box<dyn std::error::Error>> {
 //! let results = client
-//!   .search(peer, "hello world")
-//!   .min_date(1_700_000_000)
-//!   .max_date(1_720_000_000)
-//!   .filter(layer_tl_types::enums::MessagesFilter::InputMessagesFilterPhotos)
-//!   .limit(50)
-//!   .fetch(&client)
-//!   .await?;
+//! .search(peer, "hello world")
+//! .min_date(1_700_000_000)
+//! .max_date(1_720_000_000)
+//! .filter(layer_tl_types::enums::MessagesFilter::InputMessagesFilterPhotos)
+//! .limit(50)
+//! .fetch(&client)
+//! .await?;
 //! # Ok(()) }
 //! ```
 //!
@@ -20,12 +20,12 @@
 //! # async fn f(client: layer_client::Client)
 //! # -> Result<(), Box<dyn std::error::Error>> {
 //! let results = client
-//!   .search_global_builder("rust async")
-//!   .broadcasts_only(true)
-//!   .min_date(1_700_000_000)
-//!   .limit(30)
-//!   .fetch(&client)
-//!   .await?;
+//! .search_global_builder("rust async")
+//! .broadcasts_only(true)
+//! .min_date(1_700_000_000)
+//! .limit(30)
+//! .fetch(&client)
+//! .await?;
 //! # Ok(()) }
 //! ```
 

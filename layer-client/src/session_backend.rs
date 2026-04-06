@@ -18,9 +18,9 @@
 //! High-performance backends (e.g. a future Redis backend) can override the
 //! granular methods to avoid the load/save round-trip.
 //!
-//! # Ported from grammers
+//! # Ported from
 //!
-//! grammers' `Session` trait (in `grammers-session/src/session.rs`) exposes:
+//! ' `Session` trait (in `-session/src/session.rs`) exposes:
 //! - `home_dc_id() -> i32`                           : cheap sync read
 //! - `set_home_dc_id(dc_id) -> BoxFuture<'_, ()>`    : async write
 //! - `dc_option(dc_id) -> Option<DcOption>`          : cheap sync read
@@ -62,7 +62,7 @@ pub trait SessionBackend: Send + Sync {
     /// - completing a DH handshake on a new DC (to persist its auth key)
     /// - receiving updated DC addresses from `help.getConfig`
     ///
-    /// Ported from grammers `Session::set_dc_option`.
+    /// Ported from  `Session::set_dc_option`.
     fn update_dc(&self, entry: &DcEntry) -> io::Result<()> {
         let mut s = self.load()?.unwrap_or_default();
         // Replace existing entry or append
@@ -79,7 +79,7 @@ pub trait SessionBackend: Send + Sync {
     /// Called after a successful `*_MIGRATE` redirect: the user's account
     /// now lives on a different DC.
     ///
-    /// Ported from grammers `Session::set_home_dc_id`.
+    /// Ported from  `Session::set_home_dc_id`.
     fn set_home_dc(&self, dc_id: i32) -> io::Result<()> {
         let mut s = self.load()?.unwrap_or_default();
         s.home_dc_id = dc_id;
@@ -88,7 +88,7 @@ pub trait SessionBackend: Send + Sync {
 
     /// Apply a single update-sequence change without a full save/load.
     ///
-    /// Ported from grammers `Session::set_update_state(UpdateState)`.
+    /// Ported from  `Session::set_update_state(UpdateState)`.
     ///
     /// `update` is the new partial or full state to merge in.
     fn apply_update_state(&self, update: UpdateStateChange) -> io::Result<()> {
@@ -102,7 +102,7 @@ pub trait SessionBackend: Send + Sync {
     /// This is lossy-on-default (full round-trip) but correct.
     /// Override in SQL backends to issue a single `INSERT OR REPLACE`.
     ///
-    /// Ported from grammers `Session::cache_peer`.
+    /// Ported from  `Session::cache_peer`.
     fn cache_peer(&self, peer: &CachedPeer) -> io::Result<()> {
         let mut s = self.load()?.unwrap_or_default();
         if let Some(existing) = s.peers.iter_mut().find(|p| p.id == peer.id) {
@@ -114,11 +114,11 @@ pub trait SessionBackend: Send + Sync {
     }
 }
 
-// UpdateStateChange (mirrors grammers UpdateState enum)
+// UpdateStateChange (mirrors  UpdateState enum)
 
 /// A single update-sequence change, applied via [`SessionBackend::apply_update_state`].
 ///
-/// grammers uses:
+///uses:
 /// ```text
 /// UpdateState::All(updates_state)
 /// UpdateState::Primary { pts, date, seq }

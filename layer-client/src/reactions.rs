@@ -1,6 +1,6 @@
 //! [`InputReactions`]: typed parameter for reacting to messages.
 //!
-//! Mirrors grammers' `InputReactions` API.
+//!  API.
 //!
 //! # Examples
 //!
@@ -19,8 +19,8 @@
 //! // Multi-reaction
 //! use layer_tl_types::enums::Reaction;
 //! InputReactions::from(vec![
-//!   Reaction::Emoji(layer_tl_types::types::ReactionEmoji { emoticon: "👍".into() }),
-//!   Reaction::Emoji(layer_tl_types::types::ReactionEmoji { emoticon: "❤️".into() }),
+//! Reaction::Emoji(layer_tl_types::types::ReactionEmoji { emoticon: "👍".into() }),
+//! Reaction::Emoji(layer_tl_types::types::ReactionEmoji { emoticon: "❤️".into() }),
 //! ]);
 //!
 //! // Chained modifiers

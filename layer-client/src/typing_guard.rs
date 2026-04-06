@@ -10,12 +10,12 @@
 //! use layer_tl_types as tl;
 //!
 //! async fn handle(client: Client, peer: tl::enums::Peer) {
-//!   // Typing indicator is sent immediately and auto-cancelled on drop.
-//!   let _typing = TypingGuard::start(&client, peer.clone(),
-//!       tl::enums::SendMessageAction::SendMessageTypingAction).await.unwrap();
+//! // Typing indicator is sent immediately and auto-cancelled on drop.
+//! let _typing = TypingGuard::start(&client, peer.clone(),
+//!     tl::enums::SendMessageAction::SendMessageTypingAction).await.unwrap();
 //!
-//!   do_expensive_work().await;
-//!   // `_typing` is dropped here: Telegram sees the typing stop.
+//! do_expensive_work().await;
+//! // `_typing` is dropped here: Telegram sees the typing stop.
 //! }
 //! # async fn do_expensive_work() {}
 //! ```

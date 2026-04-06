@@ -24,7 +24,7 @@ impl crate::errors::RpcError {
         if self.code != 303 {
             return None;
         }
-        // grammers pattern: any *_MIGRATE_* name with a numeric value
+        //  pattern: any *_MIGRATE_* name with a numeric value
         let is_migrate = self.name == "PHONE_MIGRATE"
             || self.name == "NETWORK_MIGRATE"
             || self.name == "FILE_MIGRATE"
@@ -87,13 +87,13 @@ impl RetryPolicy for NoRetries {
 
 /// Automatically sleep on `FLOOD_WAIT` and retry once on transient I/O errors.
 ///
-/// Mirrors grammers' `AutoSleep` exactly, but is also the layer default.
+/// Default retry policy. Sleeps on `FLOOD_WAIT`, backs off on I/O errors.
 ///
 /// ```rust
 /// # use layer_client::retry::AutoSleep;
 /// let policy = AutoSleep {
-///   threshold: std::time::Duration::from_secs(60),
-///   io_errors_as_flood_of: Some(std::time::Duration::from_secs(1)),
+/// threshold: std::time::Duration::from_secs(60),
+/// io_errors_as_flood_of: Some(std::time::Duration::from_secs(1)),
 /// };
 /// ```
 pub struct AutoSleep {
@@ -169,10 +169,10 @@ impl RetryPolicy for AutoSleep {
 /// ```rust,ignore
 /// let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
 /// loop {
-///   match self.do_rpc_call(req).await {
-///       Ok(body) => return Ok(body),
-///       Err(e)   => rl.advance(e).await?,
-///   }
+/// match self.do_rpc_call(req).await {
+///     Ok(body) => return Ok(body),
+///     Err(e)   => rl.advance(e).await?,
+/// }
 /// }
 /// ```
 ///

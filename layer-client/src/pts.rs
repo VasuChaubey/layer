@@ -20,10 +20,10 @@ use crate::{Client, InvocationError, RpcError, attach_client_to_update, update};
 // PossibleGapBuffer
 
 /// How long to wait before declaring a pts jump a real gap (ms).
-/// grammers uses a similar short window before triggering getDifference.
+///uses a similar short window before triggering getDifference.
 const POSSIBLE_GAP_DEADLINE_MS: u64 = 1_000;
 
-// grammers: BOT_CHANNEL_DIFF_LIMIT = 100_000, USER_CHANNEL_DIFF_LIMIT = 100
+// : BOT_CHANNEL_DIFF_LIMIT = 100_000, USER_CHANNEL_DIFF_LIMIT = 100
 /// Bots are allowed a much larger diff window (Telegram server-side limit).
 const CHANNEL_DIFF_LIMIT_BOT: i32 = 100_000;
 /// Regular users get a smaller window.
@@ -121,12 +121,10 @@ pub struct PtsState {
     pub channel_pts: HashMap<i64, i32>,
     /// Timestamp of last received update for deadline-based gap detection.
     pub last_update_at: Option<Instant>,
-    /// Fix #4: Channels currently awaiting a getChannelDifference response.
-    /// If a channel is in this set, no new gap-fill task is spawned for it
-    /// matches grammers' `getting_diff_for` guard that prevents 1 gap → N tasks.
+    /// Channels currently awaiting a getChannelDifference response.
+    /// If a channel is in this set, no new gap-fill task is spawned for it.
     pub getting_diff_for: HashSet<i64>,
-    /// Fix B2: Guard against concurrent global getDifference calls.
-    /// Mirrors grammers' `getting_diff_for.contains(&Key::Common)`.
+    /// Guard against concurrent global getDifference calls.
     /// Without this, two simultaneous gap detections both spawn get_difference(),
     /// which double-processes updates and corrupts pts state.
     pub getting_global_diff: bool,
@@ -278,12 +276,12 @@ impl Client {
 
     /// Fetch and replay any updates missed since the persisted pts.
     ///
-    /// Fix B4: loops on `Difference::Slice` (partial response) until the server
-    /// returns a final `Difference` or `Empty`, matching grammers' behaviour of
+    /// loops on `Difference::Slice` (partial response) until the server
+    /// returns a final `Difference` or `Empty`
     /// never dropping a partial batch.  Previous code returned after one slice,
     /// silently losing all updates in subsequent slices.
     pub async fn get_difference(&self) -> Result<Vec<update::Update>, InvocationError> {
-        // Fix B2: mark global diff in-flight so concurrent gap detections skip.
+        // mark global diff in-flight so concurrent gap detections skip.
         // Cleared in every exit path below.
         self.inner.pts_state.lock().await.getting_global_diff = true;
 
@@ -300,7 +298,7 @@ impl Client {
 
         let mut all_updates: Vec<update::Update> = Vec::new();
 
-        // Fix B4: loop until the server sends a final (non-Slice) response.
+        // loop until the server sends a final (non-Slice) response.
         loop {
             let (pts, qts, date) = {
                 let s = self.inner.pts_state.lock().await;
@@ -376,7 +374,7 @@ impl Client {
                 }
 
                 tl::enums::updates::Difference::Slice(d) => {
-                    // Fix B4: server has more data: apply intermediate_state and
+                    // server has more data: apply intermediate_state and
                     // continue looping.  Old code returned here, losing all updates
                     // in subsequent slices.
                     tracing::debug!(
@@ -415,10 +413,7 @@ impl Client {
                 }
 
                 tl::enums::updates::Difference::TooLong(d) => {
-                    tracing::warn!(
-                        "[layer] getDifference: TooLong (pts={}): re-syncing",
-                        d.pts
-                    );
+                    tracing::warn!("[layer] getDifference: TooLong (pts={}): re-syncing", d.pts);
                     self.inner.pts_state.lock().await.pts = d.pts;
                     self.sync_pts_state().await?;
                     return Ok(all_updates);
@@ -476,7 +471,7 @@ impl Client {
             access_hash,
         });
 
-        // grammers: bots get BOT_CHANNEL_DIFF_LIMIT (100_000), users get USER_CHANNEL_DIFF_LIMIT (100)
+        // : bots get BOT_CHANNEL_DIFF_LIMIT (100_000), users get USER_CHANNEL_DIFF_LIMIT (100)
         let diff_limit = if self.inner.is_bot.load(std::sync::atomic::Ordering::Relaxed) {
             CHANNEL_DIFF_LIMIT_BOT
         } else {
@@ -585,8 +580,8 @@ impl Client {
 
     /// Check global pts, buffer during possible-gap window, fetch diff if real gap.
     ///
-    /// Fix B2: if a global getDifference is already in-flight (getting_global_diff == true),
-    /// buffer the update and return immediately: mirrors grammers' getting_diff_for guard
+    /// if a global getDifference is already in-flight (getting_global_diff == true),
+    /// buffer the update and return immediately:
     /// for Key::Common.  Without this, every simultaneous gap detection spawns a redundant
     /// get_difference(), double-advancing pts and corrupting state.
     pub async fn check_and_fill_gap(
@@ -595,7 +590,7 @@ impl Client {
         pts_count: i32,
         upd: Option<update::Update>,
     ) -> Result<Vec<update::Update>, InvocationError> {
-        // Fix B2: if a global diff is already in flight, just buffer and bail.
+        // if a global diff is already in flight, just buffer and bail.
         if self.inner.pts_state.lock().await.getting_global_diff {
             tracing::debug!("[layer] global diff in flight: buffering pts={new_pts}");
             if let Some(u) = upd {
@@ -639,7 +634,7 @@ impl Client {
                         "[layer] global pts gap: expected {expected}, got {got}: getDifference"
                     );
                     let buffered = self.inner.possible_gap.lock().await.drain_global();
-                    // get_difference now sets/clears getting_global_diff internally (Fix B2).
+                    // get_difference now sets/clears getting_global_diff internally ().
                     let mut diff_updates = self.get_difference().await?;
                     // Prepend buffered updates so ordering is maintained.
                     diff_updates.splice(0..0, buffered);
@@ -716,7 +711,7 @@ impl Client {
         pts_count: i32,
         upd: Option<update::Update>,
     ) -> Result<Vec<update::Update>, InvocationError> {
-        // Fix #4: if a diff is already in flight for this channel, skip: prevents
+        // if a diff is already in flight for this channel, skip: prevents
         // 1 gap from spawning N concurrent getChannelDifference tasks.
         if self
             .inner
@@ -779,7 +774,7 @@ impl Client {
                     tracing::warn!(
                         "[layer] channel {channel_id} pts gap: expected {expected}, got {got}: getChannelDifference"
                     );
-                    // Fix #4: mark this channel as having a diff in flight.
+                    // mark this channel as having a diff in flight.
                     self.inner
                         .pts_state
                         .lock()
@@ -794,7 +789,7 @@ impl Client {
                         .drain_channel(channel_id);
                     match self.get_channel_difference(channel_id).await {
                         Ok(mut diff_updates) => {
-                            // Fix #4: diff complete, allow future gaps to be handled.
+                            // diff complete, allow future gaps to be handled.
                             self.inner
                                 .pts_state
                                 .lock()
@@ -805,14 +800,14 @@ impl Client {
                             Ok(diff_updates)
                         }
                         // Permanent access errors: remove the channel from pts tracking
-                        // entirely (mirrors grammers' approach). The next update for this
+                        // entirely (. The next update for this
                         // channel will have local=0 → PtsCheckResult::Ok, advancing pts
                         // without any gap fill. This breaks the infinite gap→CHANNEL_INVALID
                         // loop that happened when advance_channel kept the stale pts alive.
                         //
                         // Common causes:
                         // - access_hash not in peer cache (update arrived via updateShort
-                        //   which carries no chats list)
+                        // which carries no chats list)
                         // - bot was kicked / channel deleted
                         Err(InvocationError::Rpc(ref e))
                             if e.name == "CHANNEL_INVALID"
@@ -827,7 +822,7 @@ impl Client {
                             {
                                 let mut s = self.inner.pts_state.lock().await;
                                 s.getting_diff_for.remove(&channel_id);
-                                s.channel_pts.remove(&channel_id); // ← grammers fix: delete, not advance
+                                s.channel_pts.remove(&channel_id); // ←  fix: delete, not advance
                             }
                             Ok(buffered)
                         }
@@ -846,7 +841,7 @@ impl Client {
                             Ok(buffered)
                         }
                         Err(e) => {
-                            // Fix #4: also clear on unexpected errors so we don't get stuck.
+                            // also clear on unexpected errors so we don't get stuck.
                             self.inner
                                 .pts_state
                                 .lock()
@@ -873,11 +868,11 @@ impl Client {
     /// Called periodically (e.g. from keepalive) to fire getDifference
     /// if no update has been received for > 15 minutes.
     ///
-    /// Fix B3: also drives per-entry possible-gap deadlines independently of
+    /// also drives per-entry possible-gap deadlines independently of
     /// incoming updates.  Previously the POSSIBLE_GAP_DEADLINE_MS window was
     /// only evaluated when a new incoming update called check_and_fill_gap
     /// meaning a quiet channel with a real gap would never fire getDifference
-    /// until another update arrived.  This matches grammers' check_deadlines()
+    /// until another update arrived.  This
     /// which scans all LiveEntry.effective_deadline() on every keepalive tick.
     pub async fn check_update_deadline(&self) -> Result<(), InvocationError> {
         // existing 15-minute global timeout
@@ -892,7 +887,7 @@ impl Client {
             }
         }
 
-        // Fix B3a: drive global possible-gap deadline
+        // drive global possible-gap deadline
         // If the possible-gap window has expired but no new update has arrived
         // to trigger check_and_fill_gap, fire getDifference from here.
         {
@@ -923,7 +918,7 @@ impl Client {
             }
         }
 
-        // Fix B3b: drive per-channel possible-gap deadlines
+        // drive per-channel possible-gap deadlines
         // Collect expired channel IDs up-front to avoid holding the lock across awaits.
         let expired_channels: Vec<i64> = {
             let gap = self.inner.possible_gap.lock().await;

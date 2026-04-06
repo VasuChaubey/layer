@@ -103,7 +103,6 @@ impl EncryptedSession {
     ///
     /// Service messages (MsgsAck, containers, etc.) MUST use an even seqno
     /// per the MTProto spec so the server does not expect a reply.
-    /// grammers reference: `mtp/encrypted.rs: get_seq_no(content_related: bool)`
     pub fn next_seq_no_ncr(&self) -> i32 {
         self.sequence * 2
     }
@@ -113,7 +112,6 @@ impl EncryptedSession {
     /// `bad_msg_notification` with error codes 32 (seq_no too low) or
     /// 33 (seq_no too high).
     ///
-    /// grammers reference: `mtp/encrypted.rs: handle_bad_notification() codes 32/33`
     pub fn correct_seq_no(&mut self, code: u32) {
         match code {
             32 => {
@@ -146,7 +144,6 @@ impl EncryptedSession {
     /// 17 (msg_id too high) so clock drift is corrected at any point in the
     /// session, not only at connect time.
     ///
-    /// grammers reference: `mtp/encrypted.rs: correct_time_offset(msg_id)`
     pub fn correct_time_offset(&mut self, server_msg_id: i64) {
         // Upper 32 bits of msg_id = Unix seconds on the server
         let server_time = (server_msg_id >> 32) as i32;
@@ -173,7 +170,6 @@ impl EncryptedSession {
     /// `content_related = true`  → odd seqno, advances counter  (regular RPCs)
     /// `content_related = false` → even seqno, no advance       (MsgsAck, container)
     ///
-    /// grammers reference: `mtp/encrypted.rs: get_seq_no(content_related)`
     pub fn alloc_msg_seqno(&mut self, content_related: bool) -> (i64, i32) {
         let msg_id = self.next_msg_id();
         let seqno = if content_related {
@@ -220,7 +216,6 @@ impl EncryptedSession {
     /// requests when a bad_msg_notification or bad_server_salt arrives for
     /// the container rather than the individual inner message.
     ///
-    /// grammers reference: `MsgIdPair { msg_id, container_msg_id }`
     pub fn pack_container(&mut self, container_body: &[u8]) -> (Vec<u8>, i64) {
         self.pack_body_with_msg_id(container_body, false)
     }

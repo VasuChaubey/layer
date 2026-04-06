@@ -3,9 +3,6 @@
 //! Once you have a `Finished` from [`crate::authentication`], construct an
 //! [`EncryptedSession`] and use it to serialize/deserialize all subsequent
 //! messages.
-//!
-//! The seq_no, time-offset correction, and salt-pool logic here draws
-//! from the grammers project's mtp/encrypted.rs, which we owe a thanks to.
 
 use std::time::{SystemTime, UNIX_EPOCH};
 

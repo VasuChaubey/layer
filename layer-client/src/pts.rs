@@ -4,9 +4,6 @@
 //! fills gaps via `updates.getDifference` (global) and
 //! `updates.getChannelDifference` (per-channel).
 //!
-//! The gap-detection strategy and diff-guard logic here is based on
-//! how the grammers project handles update gaps, with thanks.
-//!
 //! ## What "gap" means
 //! Telegram guarantees updates arrive in order within a pts counter.
 //! If `new_pts != local_pts + pts_count` there is a gap and we must

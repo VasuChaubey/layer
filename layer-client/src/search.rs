@@ -33,8 +33,6 @@ use layer_tl_types::{self as tl, Cursor, Deserializable};
 
 use crate::{Client, InvocationError, PeerRef, update};
 
-// SearchBuilder
-
 /// Fluent builder for `messages.search` (in-chat message search).
 ///
 /// Created by [`Client::search`]. All setters are chainable; call
@@ -179,8 +177,6 @@ impl SearchBuilder {
             .collect())
     }
 }
-
-// GlobalSearchBuilder
 
 /// Fluent builder for `messages.searchGlobal` (cross-chat search).
 ///

@@ -699,8 +699,6 @@ pub struct Client {
 }
 
 impl Client {
-    // Builder
-
     /// Return a fluent [`ClientBuilder`] for constructing and connecting a client.
     ///
     /// # Example
@@ -2174,8 +2172,7 @@ impl Client {
                 // pong#347773c5  msg_id:long  ping_id:long
                 // body[4..12] = msg_id of the original Ping → key in pending map
                 //
-                // pong has odd seq_no (content-related) → must ack it.
-                // : process_message() pushes every message with seq_no%2==1.
+                // pong has odd seq_no (content-related), must ack it.
                 if body.len() >= 20 {
                     let ping_msg_id = i64::from_le_bytes(body[4..12].try_into().unwrap());
                     // Ack the pong frame itself (outer msg_id, not the ping msg_id).
@@ -2189,7 +2186,7 @@ impl Client {
                     }
                 }
             }
-            // FutureSalts: full -style salt pool
+            // FutureSalts: maintain the full server-provided salt pool.
             ID_FUTURE_SALTS => {
                 // future_salts#ae500895
                 // [0..4]   constructor
@@ -2203,8 +2200,7 @@ impl Client {
                 // [+8..+16] salt (long)
                 // first entry starts at byte 24
                 //
-                // FutureSalts has odd seq_no → must ack.
-                // : process_message() pushes every msg with seq_no%2==1.
+                // FutureSalts has odd seq_no, must ack it.
                 self.inner.writer.lock().await.pending_ack.push(msg_id);
 
                 if body.len() >= 24 {
@@ -2283,7 +2279,6 @@ impl Client {
                     let server_salt = i64::from_le_bytes(body[20..28].try_into().unwrap());
                     let mut w = self.inner.writer.lock().await;
                     // new_session_created has odd seq_no → must ack.
-                    // : process_message() pushes every msg with seq_no%2==1.
                     w.pending_ack.push(msg_id);
                     //  clears the salt pool and inserts the fresh
                     // server_salt with valid_until=i32::MAX (permanently valid).
@@ -2324,7 +2319,7 @@ impl Client {
                     _ => "unknown bad_msg code",
                 };
 
-                // : retryable=[16,17,48], non-fatal-non-retryable=[32,33], fatal=rest
+                // codes 16/17/48 are retryable; 32/33 are non-fatal seq corrections; rest are fatal.
                 let retryable = matches!(error_code, 16 | 17 | 48);
                 let fatal = !retryable && !matches!(error_code, 32 | 33);
 

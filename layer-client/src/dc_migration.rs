@@ -1,48 +1,12 @@
 //! DC migration helpers.
-//!
-//! # What changed vs the original
-//!
-//! | Before | After |
-//! |---|---|
-//! | `migrate_to` only called from 3 auth methods (`bot_sign_in`, `request_login_code`, `sign_in`) | `rpc_call_raw` detects MIGRATE errors and auto-calls `migrate_to` before retrying |
-//! | Hardcoded fallback IP `"149.154.167.51:443"` when DC not in table | `fallback_dc_addr` returns the proper static address table |
-//! | No auth export/import for non-home DCs | `copy_auth_to_dc` ported from  |
-//! | `migrate_to` calls held inside each auth function | `do_rpc_call_migrating` wraps the pattern centrally |
-//!
-//! # How to integrate
-//!
-//! In `lib.rs`, replace `rpc_call_raw` and `rpc_write` with versions that call
-//! `do_rpc_call_migrating`. The key loop becomes:
-//!
-//! ```rust,ignore
-//! async fn rpc_call_raw<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
-//! let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
-//! loop {
-//!     match self.do_rpc_call(req).await {
-//!         Ok(body) => return Ok(body),
-//!         Err(e) if e.migrate_dc_id().is_some() => {
-//!             // Auto-migrate then retry on the new DC: no need to propagate.
-//!             self.migrate_to(e.migrate_dc_id().unwrap()).await?;
-//!         }
-//!         Err(e) => rl.advance(e).await?,
-//!     }
-//! }
-//! }
-//! ```
-//!
-//! And also remove the manual MIGRATE checks in `bot_sign_in`,
-//! `request_login_code`, and `sign_in`: they will be handled automatically.
 
 use layer_tl_types as tl;
 use std::sync::Mutex;
 
 use crate::errors::InvocationError;
 
-// Static DC address table
-//
-//  keeps this in `-session/src/dc_options.rs`.
-// Layer had this inlined in `session.rs`; we expose it as a pub fn so
-// `migrate_to` and tests can reference it without a hardcoded string literal.
+// Static DC address table.
+// Exposes a pub fn so migrate_to and tests can reference it without hardcoding strings.
 
 /// Return the statically known IPv4 address for a Telegram DC.
 ///
@@ -68,14 +32,9 @@ pub fn default_dc_addresses() -> Vec<(i32, String)> {
         .collect()
 }
 
-// copy_auth_to_dc (ported from  net.rs)
-//
-// When the client is fully signed in and wants to perform an operation on a
-// non-home DC (e.g. download a file from DC4 while home is DC1), it must
-// export its authorization from the home DC and import it on the target DC.
-//
-//  deduplicates this with `auth_copied_to_dcs: Mutex<Vec<i32>>`.
-// We do the same here.
+// When operating on a non-home DC (e.g. downloading from DC4 while home is DC1),
+// the client must export its auth from home and import it on the target DC.
+// We track which DCs already have a copy to avoid redundant round-trips.
 
 /// State that must live inside `ClientInner` to track which DCs already have
 /// a copy of the account's authorization key.

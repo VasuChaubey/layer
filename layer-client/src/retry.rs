@@ -1,4 +1,6 @@
 //! Retry policies for handling `FLOOD_WAIT`, transient I/O errors, and DC-migration redirects.
+//!
+//! The AutoSleep policy is based on the same approach used in grammers. Thanks for that.
 
 use std::num::NonZeroU32;
 use std::ops::ControlFlow;

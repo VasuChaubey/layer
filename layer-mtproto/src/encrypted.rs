@@ -3,6 +3,9 @@
 //! Once you have a `Finished` from [`crate::authentication`], construct an
 //! [`EncryptedSession`] and use it to serialize/deserialize all subsequent
 //! messages.
+//!
+//! The seq_no, time-offset correction, and salt-pool logic here draws
+//! from the grammers project's mtp/encrypted.rs, which we owe a thanks to.
 
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -98,7 +101,6 @@ impl EncryptedSession {
         n
     }
 
-    // non-content-related seq_no
     /// Return the current even seq_no WITHOUT advancing the counter.
     ///
     /// Service messages (MsgsAck, containers, etc.) MUST use an even seqno
@@ -107,7 +109,6 @@ impl EncryptedSession {
         self.sequence * 2
     }
 
-    // seq_no correction on bad_msg codes 32/33
     /// Correct the outgoing sequence counter when the server reports a
     /// `bad_msg_notification` with error codes 32 (seq_no too low) or
     /// 33 (seq_no too high).
@@ -137,7 +138,6 @@ impl EncryptedSession {
         }
     }
 
-    // dynamic time_offset correction
     /// Re-derive the clock skew from a server-provided `msg_id`.
     ///
     /// Called on `bad_msg_notification` error codes 16 (msg_id too low) and
@@ -161,8 +161,6 @@ impl EncryptedSession {
         // Also reset last_msg_id so next_msg_id rebuilds from corrected clock
         self.last_msg_id = 0;
     }
-
-    // helpers
 
     /// Allocate a fresh `(msg_id, seqno)` pair for an inner container message
     /// WITHOUT encrypting anything.

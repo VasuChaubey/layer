@@ -1,8 +1,11 @@
 //! Update gap detection and recovery.
 //!
-//! Tracks `pts` / `qts` / `seq` / `date` plus **per-channel pts**, and
+//! Tracks `pts` / `qts` / `seq` / `date` plus per-channel pts, and
 //! fills gaps via `updates.getDifference` (global) and
-//! `updates.getChannelDifference` (per-channel, gap).
+//! `updates.getChannelDifference` (per-channel).
+//!
+//! The gap-detection strategy and diff-guard logic here is based on
+//! how the grammers project handles update gaps, with thanks.
 //!
 //! ## What "gap" means
 //! Telegram guarantees updates arrive in order within a pts counter.
@@ -17,13 +20,9 @@ use layer_tl_types::{Cursor, Deserializable};
 
 use crate::{Client, InvocationError, RpcError, attach_client_to_update, update};
 
-// PossibleGapBuffer
-
 /// How long to wait before declaring a pts jump a real gap (ms).
-///uses a similar short window before triggering getDifference.
 const POSSIBLE_GAP_DEADLINE_MS: u64 = 1_000;
 
-// : BOT_CHANNEL_DIFF_LIMIT = 100_000, USER_CHANNEL_DIFF_LIMIT = 100
 /// Bots are allowed a much larger diff window (Telegram server-side limit).
 const CHANNEL_DIFF_LIMIT_BOT: i32 = 100_000;
 /// Regular users get a smaller window.
@@ -471,7 +470,7 @@ impl Client {
             access_hash,
         });
 
-        // : bots get BOT_CHANNEL_DIFF_LIMIT (100_000), users get USER_CHANNEL_DIFF_LIMIT (100)
+        // bots get a much larger diff window than regular users.
         let diff_limit = if self.inner.is_bot.load(std::sync::atomic::Ordering::Relaxed) {
             CHANNEL_DIFF_LIMIT_BOT
         } else {
@@ -575,9 +574,6 @@ impl Client {
         );
         Ok(())
     }
-
-    // Gap-check helpers
-
     /// Check global pts, buffer during possible-gap window, fetch diff if real gap.
     ///
     /// if a global getDifference is already in-flight (getting_global_diff == true),

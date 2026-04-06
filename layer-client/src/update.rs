@@ -847,8 +847,6 @@ impl CallbackQuery {
     }
 }
 
-// Answer builder
-
 /// Fluent builder returned by [`CallbackQuery::answer`]. Finalize with `.send(&client).await`.
 pub struct Answer<'a> {
     query_id: i64,
@@ -984,8 +982,6 @@ pub struct RawUpdate {
     pub constructor_id: u32,
 }
 
-// UserStatusUpdate
-
 /// A user's online / offline status changed.
 ///
 /// Delivered as [`Update::UserStatus`].
@@ -1008,8 +1004,6 @@ pub struct UserStatusUpdate {
     /// New online/offline/recently/etc. status.
     pub status: tl::enums::UserStatus,
 }
-
-// ChatActionUpdate
 
 /// A user is performing a chat action (typing, uploading, recording…).
 ///

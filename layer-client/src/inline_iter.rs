@@ -4,7 +4,6 @@
 //! [`InlineQueryIter`] streams live inline queries arriving from users typing
 //! `@yourbot query`.  Backed by the update stream.
 //!
-//! ## Sending (user/client side:)
 //! [`InlineResultIter`] lets a *user* account call `messages.GetInlineBotResults`
 //! and iterate the results, with a `.send()` helper to forward a chosen result.
 
@@ -31,8 +30,6 @@ impl InlineQueryIter {
         self.rx.recv().await
     }
 }
-
-// InlineResult
 
 /// A single result returned by a bot for an inline query.
 /// Obtained from [`InlineResultIter::next`].
@@ -93,8 +90,6 @@ impl InlineResult {
         Ok(())
     }
 }
-
-// InlineResultIter
 
 /// Paginated iterator over results from a bot's inline mode.
 /// Created by [`Client::inline_query`].

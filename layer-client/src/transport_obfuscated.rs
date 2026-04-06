@@ -15,8 +15,6 @@ use crate::InvocationError;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
-// ObfuscatedStream
-
 /// Wraps a [`TcpStream`] with correct Obfuscated2 framing (AES-256-CTR).
 ///
 /// After construction the 64-byte handshake has been sent and the stream is

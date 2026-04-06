@@ -1,4 +1,6 @@
 //! SRP 2FA math for Telegram 2FA.
+//!
+//! Thanks to the grammers project for the original SRP implementation this is based on.
 
 use hmac::Hmac;
 use num_bigint::{BigInt, Sign};

@@ -1191,8 +1191,6 @@ impl Client {
     }
 }
 
-// ProfilePhotoIter
-
 /// Lazy async iterator over a user's profile photos.
 ///
 /// Obtained from [`Client::iter_profile_photos`].

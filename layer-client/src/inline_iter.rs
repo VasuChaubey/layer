@@ -1,10 +1,10 @@
-//! Inline query support — two directions:
+//! Inline query support: two directions:
 //!
 //! ## Receiving (bot side)
 //! [`InlineQueryIter`] streams live inline queries arriving from users typing
 //! `@yourbot query`.  Backed by the update stream.
 //!
-//! ## Sending (user/client side — G-25)
+//! ## Sending (user/client side: G-25)
 //! [`InlineResultIter`] lets a *user* account call `messages.GetInlineBotResults`
 //! and iterate the results, with a `.send()` helper to forward a chosen result.
 
@@ -17,7 +17,7 @@ use tokio::sync::mpsc;
 use crate::update::{InlineQuery, Update};
 use crate::{Client, InvocationError};
 
-// ─── InlineQueryIter (bot side — receive) ────────────────────────────────────
+// InlineQueryIter (bot side: receive)
 
 /// Async iterator over *incoming* inline queries (bot side).
 /// Created by [`Client::iter_inline_queries`].
@@ -32,7 +32,7 @@ impl InlineQueryIter {
     }
 }
 
-// ─── InlineResult (G-25) ─────────────────────────────────────────────────────
+// InlineResult (G-25)
 
 /// A single result returned by a bot for an inline query.
 /// Obtained from [`InlineResultIter::next`].
@@ -94,7 +94,7 @@ impl InlineResult {
     }
 }
 
-// ─── InlineResultIter (G-25) ──────────────────────────────────────────────────
+// InlineResultIter (G-25)
 
 /// Paginated iterator over results from a bot's inline mode.
 /// Created by [`Client::inline_query`].
@@ -154,7 +154,7 @@ impl InlineResultIter {
     }
 }
 
-// ─── Client extensions ────────────────────────────────────────────────────────
+// Client extensions
 
 impl Client {
     /// Return an iterator that yields every *incoming* inline query (bot side).

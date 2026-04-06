@@ -8,12 +8,12 @@
 
 ```
 Your App
-  └── layer-client          ← high-level Client, UpdateStream, InputMessage
-        ├── layer-mtproto   ← MTProto session, DH, message framing
-        │     └── layer-crypto  ← AES-IGE, RSA, SHA, factorize
-        └── layer-tl-types  ← all generated types + LAYER constant
-              ├── layer-tl-gen    (build-time code generator)
-              └── layer-tl-parser (build-time TL schema parser)
+ └ layer-client ← high-level Client, UpdateStream, InputMessage
+ ├ layer-mtproto ← MTProto session, DH, message framing
+ │ └ layer-crypto ← AES-IGE, RSA, SHA, factorize
+ └ layer-tl-types ← all generated types + LAYER constant
+ ├ layer-tl-gen (build-time code generator)
+ └ layer-tl-parser (build-time TL schema parser)
 ```
 
 ---
@@ -25,23 +25,23 @@ Your App
 **The high-level async Telegram client.** Import this in your application.
 
 ### What it provides
-- `Client` — the main handle with all high-level methods
-- `ClientBuilder` — fluent builder for connecting (`Client::builder()...connect()`)
-- `Config` — connection configuration
-- `Update` enum — typed update events
-- `InputMessage` — fluent message builder
-- `parsers::parse_markdown` / `parsers::parse_html` — text → entities
-- `UpdateStream` — async iterator
-- `Dialog`, `DialogIter`, `MessageIter` — dialog/history access
-- `Participant`, `ParticipantStatus` — member info
-- `Photo`, `Document`, `Sticker`, `Downloadable` — typed media wrappers
-- `UploadedFile`, `DownloadIter` — upload/download
-- `TypingGuard` — auto-cancels chat action on drop
-- `SearchBuilder`, `GlobalSearchBuilder` — fluent search
-- `InlineKeyboard`, `ReplyKeyboard`, `Button` — keyboard builders
+- `Client`: the main handle with all high-level methods
+- `ClientBuilder`: fluent builder for connecting (`Client::builder()...connect()`)
+- `Config`: connection configuration
+- `Update` enum: typed update events
+- `InputMessage`: fluent message builder
+- `parsers::parse_markdown` / `parsers::parse_html`: text → entities
+- `UpdateStream`: async iterator
+- `Dialog`, `DialogIter`, `MessageIter`: dialog/history access
+- `Participant`, `ParticipantStatus`: member info
+- `Photo`, `Document`, `Sticker`, `Downloadable`: typed media wrappers
+- `UploadedFile`, `DownloadIter`: upload/download
+- `TypingGuard`: auto-cancels chat action on drop
+- `SearchBuilder`, `GlobalSearchBuilder`: fluent search
+- `InlineKeyboard`, `ReplyKeyboard`, `Button`: keyboard builders
 - `SessionBackend` trait + `BinaryFileBackend`, `InMemoryBackend`, `StringSessionBackend`, `SqliteBackend`, `LibSqlBackend`
-- `Socks5Config` — proxy configuration
-- `TransportKind` — Abridged, Intermediate, Obfuscated
+- `Socks5Config`: proxy configuration
+- `TransportKind`: Abridged, Intermediate, Obfuscated
 - Error types: `InvocationError`, `RpcError`, `SignInError`, `LoginToken`, `PasswordToken`
 - Retry traits: `RetryPolicy`, `AutoSleep`, `NoRetries`, `RetryContext`
 
@@ -54,22 +54,22 @@ Your App
 **All generated Telegram API types.** Auto-regenerated at `cargo build` from `tl/api.tl`.
 
 ### What it provides
-- `LAYER: i32` — the current layer number (224)
-- `types::*` — 1,200+ concrete structs (`types::Message`, `types::User`, etc.)
-- `enums::*` — 400+ boxed type enums (`enums::Message`, `enums::Peer`, etc.)
-- `functions::*` — 500+ RPC function structs implementing `RemoteCall`
+- `LAYER: i32`: the current layer number (224)
+- `types::*`: 1,200+ concrete structs (`types::Message`, `types::User`, etc.)
+- `enums::*`: 400+ boxed type enums (`enums::Message`, `enums::Peer`, etc.)
+- `functions::*`: 500+ RPC function structs implementing `RemoteCall`
 - `Serializable` / `Deserializable` traits
-- `Cursor` — zero-copy deserializer
-- `RemoteCall` — marker trait for RPC functions
+- `Cursor`: zero-copy deserializer
+- `RemoteCall`: marker trait for RPC functions
 - Optional: `name_for_id(u32) -> Option<&'static str>`
 
 ### Key type conventions
 
 | Pattern | Meaning |
 |---|---|
-| `tl::types::Foo` | Concrete constructor — a struct |
-| `tl::enums::Bar` | Boxed type — an enum wrapping one or more `types::*` |
-| `tl::functions::ns::Method` | RPC function — implements `RemoteCall` |
+| `tl::types::Foo` | Concrete constructor: a struct |
+| `tl::enums::Bar` | Boxed type: an enum wrapping one or more `types::*` |
+| `tl::functions::ns::Method` | RPC function: implements `RemoteCall` |
 
 Most Telegram API fields use `enums::*` types because the wire format is polymorphic.
 
@@ -82,8 +82,8 @@ Most Telegram API fields use `enums::*` types because the wire format is polymor
 **The MTProto session layer.** Handles the low-level mechanics of talking to Telegram.
 
 ### What it provides
-- `EncryptedSession` — manages auth key, salt, session ID, message IDs
-- `authentication::*` — complete 3-step DH key exchange
+- `EncryptedSession`: manages auth key, salt, session ID, message IDs
+- `authentication::*`: complete 3-step DH key exchange
 - Message framing: serialization, padding, encryption, HMAC
 - `msg_container` unpacking (batched responses)
 - gzip decompression of `gzip_packed` responses
@@ -93,9 +93,9 @@ Most Telegram API fields use `enums::*` types because the wire format is polymor
 
 <img src="images/mtproto-dh-flow.svg" alt="MTProto DH key exchange flow" width="100%" style="margin: 0.75rem 0 1.25rem 0;" />
 
-1. **PQ factorization** — `req_pq_multi` → server sends `resPQ`
-2. **Server DH params** — `req_DH_params` with encrypted key → `server_DH_params_ok`
-3. **Client DH finish** — `set_client_DH_params` → `dh_gen_ok`
+1. **PQ factorization**: `req_pq_multi` → server sends `resPQ`
+2. **Server DH params**: `req_DH_params` with encrypted key → `server_DH_params_ok`
+3. **Client DH finish**: `set_client_DH_params` → `dh_gen_ok`
 
 After step 3, both sides hold the same auth key derived from the shared DH secret.
 
@@ -127,11 +127,11 @@ After step 3, both sides hold the same auth key derived from the shared DH secre
 **TL schema parser.** Converts `.tl` text into structured `Definition` values.
 
 ### Parsed AST types
-- `Definition` — a single TL line (constructor or function)
-- `Category` — `Type` or `Function`
-- `Parameter` — a named field with type
-- `ParameterType` — flags, conditionals, generic, basic
-- `Flag` — `flags.N?type` conditional fields
+- `Definition`: a single TL line (constructor or function)
+- `Category`: `Type` or `Function`
+- `Parameter`: a named field with type
+- `ParameterType`: flags, conditionals, generic, basic
+- `Flag`: `flags.N?type` conditional fields
 
 Used exclusively by `build.rs` in `layer-tl-types`. You never import it directly.
 
@@ -147,12 +147,12 @@ Used exclusively by `build.rs` in `layer-tl-types`. You never import it directly
 | File | Contents |
 |---|---|
 | `generated_common.rs` | `pub const LAYER: i32 = N;` + optional `name_for_id` |
-| `generated_types.rs` | `pub mod types { … }` — all constructor structs |
-| `generated_enums.rs` | `pub mod enums { … }` — all boxed type enums |
-| `generated_functions.rs` | `pub mod functions { … }` — all RPC function structs |
+| `generated_types.rs` | `pub mod types { … }`: all constructor structs |
+| `generated_enums.rs` | `pub mod enums { … }`: all boxed type enums |
+| `generated_functions.rs` | `pub mod functions { … }`: all RPC function structs |
 
 Each type automatically gets:
-- `impl Serializable` — binary TL encoding
-- `impl Deserializable` — binary TL decoding
-- `impl Identifiable` — `const CONSTRUCTOR_ID: u32`
+- `impl Serializable`: binary TL encoding
+- `impl Deserializable`: binary TL decoding
+- `impl Identifiable`: `const CONSTRUCTOR_ID: u32`
 - Optional: `impl Debug`, `impl From`, `impl TryFrom`, `impl Serialize/Deserialize`

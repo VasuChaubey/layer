@@ -12,7 +12,7 @@
 [![Rust](https://img.shields.io/badge/rust-2024_edition-f74c00)](https://www.rust-lang.org/)
 [![TL Layer](https://img.shields.io/badge/TL%20Layer-224-8b5cf6)](https://core.telegram.org/schema)
 
-*2,329 TL constructors. Every Telegram type, function and enum — as idiomatic Rust.*
+*2,329 TL constructors. Every Telegram type, function and enum: as idiomatic Rust.*
 
 </div>
 
@@ -86,8 +86,8 @@ pub mod functions {
 
 | Feature | Default | Description |
 |---|---|---|
-| `tl-api` | ✅ | Telegram API schema (`api.tl`) — all high-level types |
-| `tl-mtproto` | ❌ | MTProto internal schema (`mtproto.tl`) — low-level protocol types |
+| `tl-api` | ✅ | Telegram API schema (`api.tl`): all high-level types |
+| `tl-mtproto` | ❌ | MTProto internal schema (`mtproto.tl`): low-level protocol types |
 | `impl-debug` | ✅ | `#[derive(Debug)]` on all generated types |
 | `impl-from-type` | ✅ | `From<types::T> for enums::E` conversions |
 | `impl-from-enum` | ✅ | `TryFrom<enums::E> for types::T` conversions |
@@ -150,12 +150,12 @@ match msg {
 ```rust
 use layer_tl_types::{RemoteCall, functions::updates::GetState};
 
-// The return type is encoded as an associated type — no guessing, no casting
+// The return type is encoded as an associated type: no guessing, no casting
 let req = GetState {};
 // req: impl RemoteCall<Return = enums::updates::State>
 ```
 
-The `RemoteCall` trait ties the request type to its response type at compile time, so `client.invoke(&req)` returns `Result<R::Return, _>` — fully typed.
+The `RemoteCall` trait ties the request type to its response type at compile time, so `client.invoke(&req)` returns `Result<R::Return, _>`: fully typed.
 
 ---
 
@@ -196,7 +196,7 @@ To update to a newer Telegram API layer:
 # 1. Replace the schema file
 cp new-api.tl layer-tl-types/tl/api.tl
 
-# 2. Rebuild — code regenerates automatically
+# 2. Rebuild: code regenerates automatically
 cargo build
 ```
 
@@ -208,10 +208,10 @@ The `build.rs` invokes `layer-tl-gen` at compile time, so all types stay in sync
 
 ```
 layer-client
-└── layer-mtproto
-    └── layer-tl-types    ← you are here
-        └── (build) layer-tl-gen
-            └── (build) layer-tl-parser
+└ layer-mtproto
+ └ layer-tl-types ← you are here
+ └ (build) layer-tl-gen
+ └ (build) layer-tl-parser
 ```
 
 ---
@@ -220,8 +220,8 @@ layer-client
 
 Licensed under either of, at your option:
 
-- **MIT License** — see [LICENSE-MIT](../LICENSE-MIT)
-- **Apache License, Version 2.0** — see [LICENSE-APACHE](../LICENSE-APACHE)
+- **MIT License**: see [LICENSE-MIT](../LICENSE-MIT)
+- **Apache License, Version 2.0**: see [LICENSE-APACHE](../LICENSE-APACHE)
 
 ---
 

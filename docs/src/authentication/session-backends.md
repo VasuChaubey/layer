@@ -1,6 +1,6 @@
 # Session Backends
 
-Layer ships five session backends out of the box. They all implement the `SessionBackend` trait and are **hot-swappable** — switch by changing one line.
+Layer ships five session backends out of the box. They all implement the `SessionBackend` trait and are **hot-swappable**: switch by changing one line.
 
 ---
 
@@ -44,7 +44,7 @@ let backend = Arc::new(BinaryFileBackend::new("bot.session"));
 
 ## `InMemoryBackend`
 
-Non-persistent — lost on process exit. Ideal for tests.
+Non-persistent: lost on process exit. Ideal for tests.
 
 ```rust
 let (client, _shutdown) = Client::builder()
@@ -66,7 +66,7 @@ let backend = Arc::new(InMemoryBackend::new());
 
 ---
 
-## `StringSessionBackend` — portable auth
+## `StringSessionBackend`: portable auth
 
 Encodes the entire session (auth key + DC + peer cache) as a single base64 string. Store it in an environment variable, a database column, or a secret manager.
 
@@ -109,7 +109,7 @@ Pass an **empty string** to start a fresh session with no stored data.
 
 ---
 
-## `SqliteBackend` — local database
+## `SqliteBackend`: local database
 
 Requires feature flag:
 
@@ -133,7 +133,7 @@ The file is created if it doesn't exist.
 
 ---
 
-## `LibSqlBackend` — libsql / Turso
+## `LibSqlBackend`: libsql / Turso
 
 Requires feature flag:
 
@@ -166,7 +166,7 @@ let (client, _shutdown) = Client::builder()
 
 ## Custom backend
 
-Implement `SessionBackend` to use any storage — Redis, Postgres, S3, or anything else:
+Implement `SessionBackend` to use any storage: Redis, Postgres, S3, or anything else:
 
 ```rust
 use layer_client::session_backend::{SessionBackend, PersistedSession, DcEntry, UpdateStateChange};

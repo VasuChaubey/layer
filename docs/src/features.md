@@ -7,22 +7,22 @@
 | Feature | Default | Description |
 |---|---|---|
 | `sqlite-session` | ❌ | SQLite-backed session storage via `rusqlite` |
-| `libsql-session` | ❌ | libsql / Turso session storage — local or remote (**New in v0.4.6**) |
+| `libsql-session` | ❌ | libsql / Turso session storage: local or remote (**New in v0.4.6**) |
 | `html` | ❌ | Built-in hand-rolled HTML parser (`parse_html`, `generate_html`) |
-| `html5ever` | ❌ | Spec-compliant html5ever tokenizer — overrides the built-in `html` parser |
+| `html5ever` | ❌ | Spec-compliant html5ever tokenizer: overrides the built-in `html` parser |
 | `serde` | ❌ | `serde::Serialize` / `Deserialize` on `Config` and public structs |
 
 The following are **always available** without any feature flag:
-- `InlineKeyboard`, `ReplyKeyboard`, `Button` — keyboard builders
-- `InputReactions` — reaction builder
-- `TypingGuard` — RAII typing indicator
-- `SearchBuilder`, `GlobalSearchBuilder` — fluent search
-- `PeerRef` — flexible peer argument
-- `User`, `Group`, `Channel`, `Chat` — ergonomic type wrappers
-- `Socks5Config` — SOCKS5 proxy config
+- `InlineKeyboard`, `ReplyKeyboard`, `Button`: keyboard builders
+- `InputReactions`: reaction builder
+- `TypingGuard`: RAII typing indicator
+- `SearchBuilder`, `GlobalSearchBuilder`: fluent search
+- `PeerRef`: flexible peer argument
+- `User`, `Group`, `Channel`, `Chat`: ergonomic type wrappers
+- `Socks5Config`: SOCKS5 proxy config
 - `BannedRightsBuilder`, `AdminRightsBuilder`, `ParticipantPermissions`
 - `StringSessionBackend`, `InMemoryBackend`, `BinaryFileBackend`
-- `ClientBuilder` — fluent connection builder
+- `ClientBuilder`: fluent connection builder
 
 ```toml
 # SQLite session only
@@ -90,9 +90,9 @@ Reduces compile time when you don't need convenience traits.
 
 ---
 
-## String session — no feature flag needed
+## String session: no feature flag needed
 
-`StringSessionBackend` and `export_session_string()` are available in the default build — no feature flag required:
+`StringSessionBackend` and `export_session_string()` are available in the default build: no feature flag required:
 
 ```toml
 layer-client = "0.4.6"   # already includes StringSessionBackend

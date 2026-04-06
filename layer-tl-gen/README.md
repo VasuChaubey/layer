@@ -11,7 +11,7 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 [![Rust](https://img.shields.io/badge/rust-2024_edition-f74c00)](https://www.rust-lang.org/)
 
-*From TL AST to idiomatic Rust structs, enums, and traits — automatically.*
+*From TL AST to idiomatic Rust structs, enums, and traits: automatically.*
 
 </div>
 
@@ -30,9 +30,9 @@ layer-tl-gen = "0.4.6"
 
 ## ✨ What It Does
 
-`layer-tl-gen` takes a parsed TL AST (from `layer-tl-parser`) and generates complete, idiomatic Rust source code — structs for constructors, enums for abstract types, and trait implementations for functions.
+`layer-tl-gen` takes a parsed TL AST (from `layer-tl-parser`) and generates complete, idiomatic Rust source code: structs for constructors, enums for abstract types, and trait implementations for functions.
 
-It runs at **build time** via `build.rs`, so the generated code is always in sync with the schema — no manual updates needed. Regeneration is automatic whenever the `.tl` file changes (via `cargo:rerun-if-changed`).
+It runs at **build time** via `build.rs`, so the generated code is always in sync with the schema: no manual updates needed. Regeneration is automatic whenever the `.tl` file changes (via `cargo:rerun-if-changed`).
 
 ---
 
@@ -176,7 +176,7 @@ pub struct Config {
     pub impl_serde: bool,
 
     /// Generate `name_for_id(u32) -> Option<&'static str>` lookup.
-    /// Maps a constructor's CRC32 ID back to its TL name — useful for debugging.
+    /// Maps a constructor's CRC32 ID back to its TL name: useful for debugging.
     pub name_for_id: bool,
 }
 ```
@@ -187,21 +187,21 @@ pub struct Config {
 
 ```
 generated.rs
-├── mod types      — one struct per TL constructor
-├── mod enums      — one enum per TL abstract type
-└── mod functions
-    ├── mod account
-    ├── mod auth
-    ├── mod channels
-    ├── mod contacts
-    ├── mod messages
-    ├── mod payments
-    ├── mod phone
-    ├── mod photos
-    ├── mod stickers
-    ├── mod stories
-    ├── mod updates
-    └── mod users
+├ mod types: one struct per TL constructor
+├ mod enums: one enum per TL abstract type
+└ mod functions
+ ├ mod account
+ ├ mod auth
+ ├ mod channels
+ ├ mod contacts
+ ├ mod messages
+ ├ mod payments
+ ├ mod phone
+ ├ mod photos
+ ├ mod stickers
+ ├ mod stories
+ ├ mod updates
+ └ mod users
 ```
 
 Each `functions::*` module mirrors the namespace prefix from the TL schema (`messages.sendMessage` → `functions::messages::SendMessage`).
@@ -212,8 +212,8 @@ Each `functions::*` module mirrors the namespace prefix from the TL schema (`mes
 
 ```
 layer-tl-types  (consumes the generated code)
-└── layer-tl-gen    ← you are here  (generates at build time)
-    └── layer-tl-parser (parses the .tl schema)
+└ layer-tl-gen ← you are here (generates at build time)
+ └ layer-tl-parser (parses the .tl schema)
 ```
 
 ---
@@ -222,8 +222,8 @@ layer-tl-types  (consumes the generated code)
 
 Licensed under either of, at your option:
 
-- **MIT License** — see [LICENSE-MIT](../LICENSE-MIT)
-- **Apache License, Version 2.0** — see [LICENSE-APACHE](../LICENSE-APACHE)
+- **MIT License**: see [LICENSE-MIT](../LICENSE-MIT)
+- **Apache License, Version 2.0**: see [LICENSE-APACHE](../LICENSE-APACHE)
 
 ---
 

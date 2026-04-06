@@ -1,4 +1,4 @@
-//! G-31 / G-32 — Fluent search builders.
+//! G-31 / G-32: Fluent search builders.
 //!
 //! # In-chat search (G-31)
 //! ```rust,no_run
@@ -33,7 +33,7 @@ use layer_tl_types::{self as tl, Cursor, Deserializable};
 
 use crate::{Client, InvocationError, PeerRef, update};
 
-// ─── SearchBuilder (G-31) ─────────────────────────────────────────────────────
+// SearchBuilder (G-31)
 
 /// Fluent builder for `messages.search` (in-chat message search).
 ///
@@ -180,7 +180,7 @@ impl SearchBuilder {
     }
 }
 
-// ─── GlobalSearchBuilder (G-32) ───────────────────────────────────────────────
+// GlobalSearchBuilder (G-32)
 
 /// Fluent builder for `messages.searchGlobal` (cross-chat search).
 ///

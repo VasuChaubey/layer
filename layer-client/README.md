@@ -22,10 +22,10 @@
 
 - [Installation](#-installation)
 - [Feature Flags](#-feature-flags)
-- [Minimal Bot — 15 Lines](#-minimal-bot--15-lines)
-- [Connecting — ClientBuilder](#-connecting--clientbuilder)
+- [Minimal Bot: 15 Lines](#-minimal-bot--15-lines)
+- [Connecting: ClientBuilder](#-connecting--clientbuilder)
 - [Authentication](#-authentication)
-- [String Sessions — Portable Auth](#-string-sessions--portable-auth)
+- [String Sessions: Portable Auth](#-string-sessions--portable-auth)
 - [Update Stream](#-update-stream)
 - [Messaging](#-messaging)
 - [InputMessage Builder](#-inputmessage-builder)
@@ -33,7 +33,7 @@
 - [Media Upload & Download](#-media-upload--download)
 - [Text Formatting](#-text-formatting)
 - [Reactions](#-reactions)
-- [Typing Guard — RAII](#-typing-guard--raii)
+- [Typing Guard: RAII](#-typing-guard--raii)
 - [Participants & Chat Management](#-participants--chat-management)
 - [Search](#-search)
 - [Dialogs & Iterators](#-dialogs--iterators)
@@ -46,7 +46,7 @@
 - [Error Handling](#-error-handling)
 - [Raw API Escape Hatch](#-raw-api-escape-hatch)
 - [Shutdown](#-shutdown)
-- [Client Methods — Full Reference](#client-methods--full-reference)
+- [Client Methods: Full Reference](#client-methods--full-reference)
 
 ---
 
@@ -78,11 +78,11 @@ layer-client = { version = "0.4.6", features = ["html"] }
 layer-client = { version = "0.4.6", features = ["html5ever"] }
 ```
 
-`StringSessionBackend`, `InMemoryBackend`, and `BinaryFileBackend` are always available — no flag needed.
+`StringSessionBackend`, `InMemoryBackend`, and `BinaryFileBackend` are always available: no flag needed.
 
 ---
 
-## ⚡ Minimal Bot — 15 Lines
+## ⚡ Minimal Bot: 15 Lines
 
 ```rust
 use layer_client::{Client, update::Update};
@@ -113,7 +113,7 @@ async fn main() -> anyhow::Result<()> {
 
 ---
 
-## 🔨 Connecting — ClientBuilder
+## 🔨 Connecting: ClientBuilder
 
 ```rust
 use layer_client::Client;
@@ -144,7 +144,7 @@ let (client, _shutdown) = Client::builder()
 | `.transport(TransportKind)` | MTProto transport (default: Abridged) |
 | `.retry_policy(Arc<dyn RetryPolicy>)` | Override flood-wait retry policy |
 | `.build()` | Build `Config` without connecting |
-| `.connect()` | Build and connect — returns `(Client, ShutdownToken)` |
+| `.connect()` | Build and connect: returns `(Client, ShutdownToken)` |
 
 ---
 
@@ -190,14 +190,14 @@ client.sign_out().await?;
 
 ---
 
-## 🔑 String Sessions — Portable Auth
+## 🔑 String Sessions: Portable Auth
 
 ```rust
-// Export — works from any running client
+// Export: works from any running client
 let session_string = client.export_session_string().await?;
 std::env::set_var("TG_SESSION", &session_string);
 
-// Restore — no phone/code flow needed
+// Restore: no phone/code flow needed
 let session = std::env::var("TG_SESSION").unwrap_or_default();
 let (client, _shutdown) = Client::builder()
     .api_id(12345)
@@ -224,7 +224,7 @@ while let Some(update) = stream.next().await {
         Update::UserTyping(a)      => { /* typing / uploading */ }
         Update::UserStatus(s)      => { /* online/offline status */ }
         Update::Raw(raw)           => { /* unmapped TL update */ }
-        _ => {}  // always add a fallback — Update is #[non_exhaustive]
+        _ => {}  // always add a fallback: Update is #[non_exhaustive]
     }
 }
 ```
@@ -238,13 +238,13 @@ Update::NewMessage(msg) => {
     msg.peer_id()   // Option<&tl::enums::Peer>
     msg.sender_id() // Option<&tl::enums::Peer>
     msg.outgoing()  // bool
-    msg.date()      // i32 — Unix timestamp
+    msg.date()      // i32: Unix timestamp
     msg.edit_date() // Option<i32>
     msg.mentioned() // bool
     msg.silent()    // bool
     msg.pinned()    // bool
-    msg.post()      // bool — channel post
-    msg.raw         // tl::enums::Message — full TL object
+    msg.post()      // bool: channel post
+    msg.raw         // tl::enums::Message: full TL object
 }
 ```
 
@@ -253,7 +253,7 @@ Update::NewMessage(msg) => {
 ## 💬 Messaging
 
 ```rust
-// Any peer format works — PeerRef accepts &str, i64, tl::enums::Peer
+// Any peer format works: PeerRef accepts &str, i64, tl::enums::Peer
 client.send_message("@username", "Hello!").await?;
 client.send_message("me", "Note to self").await?;
 client.send_to_self("Reminder 📝").await?;
@@ -399,7 +399,7 @@ Update::CallbackQuery(cb) => {
 // Upload from bytes
 let uploaded = client.upload_file("photo.jpg", &bytes).await?;
 
-// Upload — parallel chunks (faster for large files)
+// Upload: parallel chunks (faster for large files)
 let uploaded = client.upload_file_concurrent("video.mp4", &bytes).await?;
 
 // Upload from async reader
@@ -473,7 +473,7 @@ client.send_reaction(peer.clone(), msg_id, InputReactions::remove()).await?;
 
 ---
 
-## ⌛ Typing Guard — RAII
+## ⌛ Typing Guard: RAII
 
 `TypingGuard` keeps a typing/uploading indicator alive and cancels it on drop:
 
@@ -585,7 +585,7 @@ let global = client
 // Fetch first N dialogs
 let dialogs = client.get_dialogs(50).await?;
 for d in &dialogs {
-    println!("{} — {} unread", d.title(), d.unread_count());
+    println!("{}: {} unread", d.title(), d.unread_count());
 }
 
 // Lazy dialog iterator
@@ -614,7 +614,7 @@ client.delete_dialog(peer.clone()).await?;
 
 ## 🧑 Peer Types
 
-High-level wrappers over raw TL types — no constant pattern-matching:
+High-level wrappers over raw TL types: no constant pattern-matching:
 
 ```rust
 use layer_client::types::{User, Group, Channel, ChannelKind, Chat};
@@ -641,7 +641,7 @@ if let Some(ch) = Channel::from_raw(raw) {
 
 // Unified Chat (Group or Channel)
 if let Some(chat) = Chat::from_raw(raw) {
-    println!("{} — {}", chat.id(), chat.title());
+    println!("{}: {}", chat.id(), chat.title());
 }
 ```
 
@@ -698,10 +698,10 @@ use layer_client::Socks5Config;
 Client::builder().transport(TransportKind::Intermediate)
 Client::builder().transport(TransportKind::Obfuscated) // DPI bypass
 
-// SOCKS5 proxy — no auth
+// SOCKS5 proxy: no auth
 Client::builder().socks5(Socks5Config::new("127.0.0.1:1080"))
 
-// SOCKS5 proxy — with auth
+// SOCKS5 proxy: with auth
 Client::builder().socks5(Socks5Config::with_auth("proxy.host:1080", "user", "pass"))
 
 // Force request to a specific DC
@@ -771,11 +771,11 @@ shutdown.cancel();
 client.disconnect();
 ```
 
-`ShutdownToken` is a `CancellationToken` wrapper — clone and pass to multiple tasks.
+`ShutdownToken` is a `CancellationToken` wrapper: clone and pass to multiple tasks.
 
 ---
 
-# Client Methods — Full Reference
+# Client Methods: Full Reference
 
 All `Client` methods. Every `async` method returns `Result<T, InvocationError>` unless noted.
 

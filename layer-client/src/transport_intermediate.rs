@@ -2,17 +2,17 @@
 //!
 //! Alongside the existing Abridged transport this module provides:
 //!
-//! * [`IntermediateTransport`] — each packet is `[4-byte LE length][payload]`.
+//! * [`IntermediateTransport`]: each packet is `[4-byte LE length][payload]`.
 //!   More compatible than Abridged with proxies that inspect the first byte.
 //!
-//! * [`FullTransport`] — like Intermediate but additionally includes a running
+//! * [`FullTransport`]: like Intermediate but additionally includes a running
 //!   sequence number and a CRC-32 checksum for integrity verification.
 
 use crate::InvocationError;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 
-// ─── Intermediate ─────────────────────────────────────────────────────────────
+// Intermediate
 
 /// [MTProto Intermediate] transport framing.
 ///
@@ -70,7 +70,7 @@ impl IntermediateTransport {
     }
 }
 
-// ─── Full ─────────────────────────────────────────────────────────────────────
+// Full
 
 /// [MTProto Full] transport framing.
 ///
@@ -162,7 +162,7 @@ impl FullTransport {
     }
 }
 
-// ─── CRC-32 (IEEE 802.3 polynomial) ──────────────────────────────────────────
+// CRC-32 (IEEE 802.3 polynomial)
 
 /// Compute CRC-32 using the standard IEEE 802.3 polynomial.
 fn crc32_ieee(data: &[u8]) -> u32 {

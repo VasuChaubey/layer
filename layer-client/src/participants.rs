@@ -9,7 +9,7 @@ use layer_tl_types::{Cursor, Deserializable};
 
 use crate::{Client, InvocationError, PeerRef};
 
-// ─── Participant ──────────────────────────────────────────────────────────────
+// Participant
 
 /// A member of a chat, group or channel.
 #[derive(Debug, Clone)]
@@ -37,7 +37,7 @@ pub enum ParticipantStatus {
     Banned,
 }
 
-// ─── Client methods ───────────────────────────────────────────────────────────
+// Client methods
 
 impl Client {
     /// Fetch all participants of a chat, group or channel.
@@ -438,7 +438,7 @@ impl Client {
     /// `chunk_size` and exposes them one-by-one via `.next().await`.
     /// Set `chunk_size` to `0` to use the default (100).
     ///
-    /// Only works for users — channels use `messages.search` with a photo
+    /// Only works for users: channels use `messages.search` with a photo
     /// filter instead.
     ///
     /// # Example
@@ -554,7 +554,7 @@ impl Client {
     }
 }
 
-// ─── Helper extension for Peer ────────────────────────────────────────────────
+// Helper extension for Peer
 
 trait PeerUserIdExt {
     fn user_id_or(&self, default: i64) -> i64;
@@ -569,7 +569,7 @@ impl PeerUserIdExt for tl::enums::Peer {
     }
 }
 
-// ─── G-26: BannedRightsBuilder ────────────────────────────────────────────────
+// BannedRightsBuilder
 
 /// Fluent builder for granular channel ban rights.
 ///
@@ -704,7 +704,7 @@ impl BannedRightsBuilder {
     }
 }
 
-// ─── G-27: AdminRightsBuilder ─────────────────────────────────────────────────
+// AdminRightsBuilder
 
 /// Fluent builder for granular admin rights.
 #[derive(Debug, Clone, Default)]
@@ -818,7 +818,7 @@ impl AdminRightsBuilder {
     }
 }
 
-// ─── G-30: ParticipantPermissions ────────────────────────────────────────────
+// ParticipantPermissions
 
 /// The effective permissions/rights of a specific participant.
 #[derive(Debug, Clone)]
@@ -849,10 +849,10 @@ impl ParticipantPermissions {
     }
 }
 
-// ─── Client: new participant methods ──────────────────────────────────────────
+// Client: new participant methods
 
 impl Client {
-    // ── G-26: set_banned_rights ───────────────────────────────────────────
+    // set_banned_rights
 
     /// Apply granular ban rights to a user in a channel or supergroup.
     ///
@@ -908,7 +908,7 @@ impl Client {
         Ok(())
     }
 
-    // ── G-27: set_admin_rights ────────────────────────────────────────────
+    // set_admin_rights
 
     /// Apply granular admin rights to a user in a channel or supergroup.
     ///
@@ -967,7 +967,7 @@ impl Client {
         Ok(())
     }
 
-    // ── G-28: iter_participants with filter ───────────────────────────────
+    // iter_participants with filter
 
     /// Fetch participants with an optional filter, paginated.
     ///
@@ -1071,7 +1071,7 @@ impl Client {
         }
     }
 
-    // ── G-30: get_permissions ─────────────────────────────────────────────
+    // get_permissions
 
     /// Get the effective permissions of a specific user in a channel.
     pub async fn get_permissions(
@@ -1191,7 +1191,7 @@ impl Client {
     }
 }
 
-// ─── ProfilePhotoIter (G-12) ─────────────────────────────────────────────────
+// ProfilePhotoIter (G-12)
 
 /// Lazy async iterator over a user's profile photos.
 ///
@@ -1233,7 +1233,7 @@ impl ProfilePhotoIter {
             return Ok(Some(photo));
         }
 
-        // Buffer empty — if we already know there are no more pages, stop.
+        // Buffer empty: if we already know there are no more pages, stop.
         if self.done {
             return Ok(None);
         }
@@ -1251,7 +1251,7 @@ impl ProfilePhotoIter {
         let (photos, total): (Vec<tl::enums::Photo>, Option<i32>) =
             match tl::enums::photos::Photos::deserialize(&mut cur)? {
                 tl::enums::photos::Photos::Photos(p) => {
-                    // Server returned everything at once — no more pages.
+                    // Server returned everything at once: no more pages.
                     self.done = true;
                     (p.photos, None)
                 }
@@ -1291,7 +1291,7 @@ impl ProfilePhotoIter {
     /// Returns `None` until the first page has been fetched, or if the server
     /// returned a non-slice response (meaning all photos fit in one page).
     pub fn total_count(&self) -> Option<i32> {
-        // Exposed as a future extension point — currently the total is only
+        // Exposed as a future extension point: currently the total is only
         // available after the first network round-trip, so callers should
         // call `.next()` once before querying this if they need the count.
         // For now, we expose offset as a proxy.

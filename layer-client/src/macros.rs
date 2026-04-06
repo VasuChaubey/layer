@@ -1,4 +1,4 @@
-//! The [`dispatch!`] macro — ergonomic, pattern-matching update handler.
+//! The [`dispatch!`] macro for pattern-matching over updates.
 //!
 //! Instead of writing giant `match` blocks, `dispatch!` lets you register
 //! named handlers with optional guard clauses:
@@ -24,7 +24,7 @@
 //! ```
 //!
 //! Each arm is `VariantName(binding) [if guard] => { body }`.
-//! The macro expands to a plain `match` statement — zero overhead.
+//! The macro expands to a plain `match` statement: zero overhead.
 
 /// Route a [`crate::update::Update`] to the first matching arm.
 ///
@@ -37,8 +37,8 @@
 /// );
 /// ```
 ///
-/// - `client`  — a `layer_client::Client` (available inside every arm body)
-/// - `update`  — the `Update` value to dispatch
+/// - `client` : a `layer_client::Client` (available inside every arm body)
+/// - `update` : the `Update` value to dispatch
 /// - Each arm mirrors a variant of [`crate::update::Update`]
 /// - Guards (`if expr`) are optional
 /// - A catch-all `_ => {}` arm is optional but recommended to avoid warnings
@@ -52,7 +52,7 @@ macro_rules! dispatch {
     };
 }
 
-/// Internal helper — do not use directly.
+/// Internal helper: do not use directly.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! __dispatch_arms {
@@ -79,7 +79,7 @@ macro_rules! __dispatch_arms {
         $( $crate::__dispatch_arms!($client; $( $rest )* ) )?
     };
 
-    // Trailing comma / empty — emit wildcard to ensure exhaustiveness
+    // Trailing comma / empty: emit wildcard to ensure exhaustiveness
     ($client:expr; $(,)?) => {
         _ => {}
     };

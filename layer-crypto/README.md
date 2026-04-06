@@ -11,7 +11,7 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 [![Rust](https://img.shields.io/badge/rust-2024_edition-f74c00)](https://www.rust-lang.org/)
 
-*AES-IGE, RSA, SHA, DH — everything MTProto needs to secure a connection.*
+*AES-IGE, RSA, SHA, DH: everything MTProto needs to secure a connection.*
 
 </div>
 
@@ -28,7 +28,7 @@ layer-crypto = "0.4.6"
 
 ## ✨ What It Does
 
-`layer-crypto` implements all the cryptographic operations required by the Telegram MTProto 2.0 protocol — from the initial RSA-encrypted DH handshake all the way to the per-message AES-IGE encryption and the transport-layer obfuscation init.
+`layer-crypto` implements all the cryptographic operations required by the Telegram MTProto 2.0 protocol: from the initial RSA-encrypted DH handshake all the way to the per-message AES-IGE encryption and the transport-layer obfuscation init.
 
 Every algorithm here is implemented from scratch to match Telegram's exact specification. No external Telegram-specific crypto libraries are used.
 
@@ -38,7 +38,7 @@ Every algorithm here is implemented from scratch to match Telegram's exact speci
 
 ### AES-IGE (`aes.rs`)
 
-MTProto uses **AES-IGE** (Infinite Garble Extension) mode — not a standard mode you'll find in most crypto libraries. Implemented from scratch over the `aes` crate's block cipher.
+MTProto uses **AES-IGE** (Infinite Garble Extension) mode: not a standard mode you'll find in most crypto libraries. Implemented from scratch over the `aes` crate's block cipher.
 
 ```rust
 use layer_crypto::aes::{ige_encrypt, ige_decrypt};
@@ -70,8 +70,8 @@ let encrypted = encrypt(&data, &public_key_modulus, &public_key_exponent);
 
 Provides both SHA-1 and SHA-256:
 
-- **SHA-1** — used in auth key derivation fingerprinting and in the older `msg_key` derivation path.
-- **SHA-256** — used in MTProto 2.0 `msg_key` derivation (the variant used for all modern sessions).
+- **SHA-1**: used in auth key derivation fingerprinting and in the older `msg_key` derivation path.
+- **SHA-256**: used in MTProto 2.0 `msg_key` derivation (the variant used for all modern sessions).
 
 ```rust
 use layer_crypto::sha::{sha1, sha256};
@@ -92,7 +92,7 @@ The KDF uses a specific sequence of SHA-1 hashes over different slices of the DH
 
 ### PQ Factorization (`factorize.rs`)
 
-During Step 1 of the DH handshake, the server sends a product `pq` that the client must factor into its two prime factors `p` and `q`. This is deliberate — it's a proof-of-work that limits spam connections.
+During Step 1 of the DH handshake, the server sends a product `pq` that the client must factor into its two prime factors `p` and `q`. This is deliberate: it's a proof-of-work that limits spam connections.
 
 Uses **Pollard's rho algorithm** for fast factorization (O(n^¼) expected time vs O(√n) for trial division):
 
@@ -114,7 +114,7 @@ The `g^a mod p` and shared-secret `g^(ab) mod p` computations use big-integer ar
 
 ### Transport Obfuscation (`obfuscated.rs`)
 
-MTProto supports an **obfuscated transport** where all bytes — including the TCP handshake — are XOR-encrypted to resist protocol fingerprinting by middleboxes.
+MTProto supports an **obfuscated transport** where all bytes: including the TCP handshake: are XOR-encrypted to resist protocol fingerprinting by middleboxes.
 
 `layer-crypto` provides the stateful `ObfuscatedCodec` used by `layer-client`'s obfuscated transport variant:
 
@@ -147,9 +147,9 @@ This library is purpose-built for the Telegram MTProto protocol. The algorithms 
 
 ```
 layer-client
-└── layer-mtproto
-    ├── layer-tl-types
-    └── layer-crypto    ← you are here
+└ layer-mtproto
+ ├ layer-tl-types
+ └ layer-crypto ← you are here
 ```
 
 ---
@@ -158,8 +158,8 @@ layer-client
 
 Licensed under either of, at your option:
 
-- **MIT License** — see [LICENSE-MIT](../LICENSE-MIT)
-- **Apache License, Version 2.0** — see [LICENSE-APACHE](../LICENSE-APACHE)
+- **MIT License**: see [LICENSE-MIT](../LICENSE-MIT)
+- **Apache License, Version 2.0**: see [LICENSE-APACHE](../LICENSE-APACHE)
 
 ---
 

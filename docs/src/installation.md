@@ -30,11 +30,11 @@ Every Telegram API call requires an `api_id` (integer) and `api_hash` (hex strin
 > **SECURITY:** Never hardcode credentials in source code. Use environment variables or a secrets file that is in `.gitignore`.
 
 ```rust
-// Good — from environment
+// Good: from environment
 let api_id:   i32    = std::env::var("TG_API_ID")?.parse()?;
 let api_hash: String = std::env::var("TG_API_HASH")?;
 
-// Bad — hardcoded in source
+// Bad: hardcoded in source
 let api_id   = 12345;
 let api_hash = "deadbeef..."; // ← never do this in a public repo
 ```
@@ -63,13 +63,13 @@ layer-client = { version = "0.4.6", features = ["sqlite-session"] }
 
 Stores session data in a SQLite database instead of a binary file. More robust for long-running servers.
 
-### LibSQL / Turso session storage — New in v0.4.6
+### LibSQL / Turso session storage: New in v0.4.6
 
 ```toml
 layer-client = { version = "0.4.6", features = ["libsql-session"] }
 ```
 
-Backed by [libsql](https://github.com/tursodatabase/libsql) — supports local embedded databases and remote Turso cloud databases. Ideal for serverless or distributed deployments.
+Backed by [libsql](https://github.com/tursodatabase/libsql): supports local embedded databases and remote Turso cloud databases. Ideal for serverless or distributed deployments.
 
 ```rust
 use layer_client::session_backend::LibSqlBackend;
@@ -84,7 +84,7 @@ let backend = LibSqlBackend::open_remote(
 ).await?;
 ```
 
-### String session (portable, no extra deps) — New in v0.4.6
+### String session (portable, no extra deps): New in v0.4.6
 
 No feature flag needed. Encode a session as a base64 string and restore it anywhere:
 

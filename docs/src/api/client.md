@@ -1,4 +1,4 @@
-# Client Methods — Full Reference
+# Client Methods: Full Reference
 
 All methods on `Client`. Every method is `async` and returns `Result<T, InvocationError>` unless noted.
 
@@ -125,7 +125,7 @@ Submits the verification code. Returns the user's full name on success, or <code
 <span class="api-badge api-badge-async">async</span>
 <span class="api-card-sig">client.check_password(token: PasswordToken, password: &str) → Result&lt;(), InvocationError&gt;</span>
 </div>
-<div class="api-card-body">Completes the SRP 2FA verification. The password is never transmitted in plain text — only a zero-knowledge cryptographic proof is sent.</div>
+<div class="api-card-body">Completes the SRP 2FA verification. The password is never transmitted in plain text: only a zero-knowledge cryptographic proof is sent.</div>
 </div>
 
 <div class="api-card">
@@ -154,7 +154,7 @@ Submits the verification code. Returns the user's full name on success, or <code
 <span class="api-card-sig">client.stream_updates() → UpdateStream</span>
 </div>
 <div class="api-card-body">
-Returns an <code>UpdateStream</code> — an async iterator that yields typed <code>Update</code> values. Call <code>.next().await</code> in a loop to process events. The stream runs until the connection is closed.
+Returns an <code>UpdateStream</code>: an async iterator that yields typed <code>Update</code> values. Call <code>.next().await</code> in a loop to process events. The stream runs until the connection is closed.
 <pre><code>let mut updates = client.stream_updates();
 while let Some(update) = updates.next().await {
     match update {
@@ -201,7 +201,7 @@ Send a plain-text message. <code>peer</code> can be <code>"me"</code>, <code>"@u
 <span class="api-card-sig">client.send_message_to_peer_ex(peer: Peer, msg: &InputMessage) → Result&lt;(), InvocationError&gt;</span>
 </div>
 <div class="api-card-body">
-Full-featured send with the <a href="./input-message.md"><code>InputMessage</code></a> builder — supports markdown entities, reply-to, inline keyboard, scheduled date, silent flag, and more.
+Full-featured send with the <a href="./input-message.md"><code>InputMessage</code></a> builder: supports markdown entities, reply-to, inline keyboard, scheduled date, silent flag, and more.
 </div>
 </div>
 

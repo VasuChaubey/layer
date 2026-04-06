@@ -30,17 +30,17 @@ layer-tl-types = { version = "0.4.6", features = ["tl-mtproto"] }
 
 ## ✨ What It Does
 
-`layer-mtproto` implements the full MTProto 2.0 session layer — the encrypted tunnel through which all Telegram API calls travel. This is the core protocol machinery that sits between your application code and the TCP socket.
+`layer-mtproto` implements the full MTProto 2.0 session layer: the encrypted tunnel through which all Telegram API calls travel. This is the core protocol machinery that sits between your application code and the TCP socket.
 
 It handles:
-- 🤝 **3-step DH key exchange** — deriving a shared auth key from scratch
-- 🔐 **Encrypted sessions** — packing/unpacking MTProto 2.0 messages with AES-IGE
-- 📦 **Message framing** — salt, session_id, message_id, sequence numbers
-- 🗜️ **Containers & compression** — `msg_container`, `gzip_packed` responses
-- 🧂 **Salt management** — server salt tracking and auto-correction
-- 🔄 **Session state** — time offset, sequence number, salt rotation
-- 🔁 **Error recovery** — `bad_msg_notification`, `bad_server_salt`, `msg_resend_req`
-- ✅ **Acknowledgements** — `MsgsAck` with a pending-ack queue
+- 🤝 **3-step DH key exchange**: deriving a shared auth key from scratch
+- 🔐 **Encrypted sessions**: packing/unpacking MTProto 2.0 messages with AES-IGE
+- 📦 **Message framing**: salt, session_id, message_id, sequence numbers
+- 🗜️ **Containers & compression**: `msg_container`, `gzip_packed` responses
+- 🧂 **Salt management**: server salt tracking and auto-correction
+- 🔄 **Session state**: time offset, sequence number, salt rotation
+- 🔁 **Error recovery**: `bad_msg_notification`, `bad_server_salt`, `msg_resend_req`
+- ✅ **Acknowledgements**: `MsgsAck` with a pending-ack queue
 
 ---
 
@@ -89,31 +89,31 @@ println!("msg_id={}, body_len={}", msg.msg_id, msg.body.len());
 
 ---
 
-### `authentication` — 3-Step DH Key Exchange
+### `authentication`: 3-Step DH Key Exchange
 
 The full MTProto DH handshake as specified by Telegram:
 
 ```rust
 use layer_mtproto::authentication as auth;
 
-// Step 1 — req_pq_multi: get the server's PQ
+// Step 1: req_pq_multi: get the server's PQ
 let (req1, state1) = auth::step1()?;
 // ... send req1 over the wire, receive res_pq ...
 
-// Step 2 — req_DH_params: send our DH parameters
+// Step 2: req_DH_params: send our DH parameters
 let (req2, state2) = auth::step2(state1, res_pq)?;
 // ... send req2, receive server_DH_params ...
 
-// Step 3 — set_client_DH_params: send our client DH
+// Step 3: set_client_DH_params: send our client DH
 let (req3, state3) = auth::step3(state2, dh_params)?;
 // ... send req3, receive dh_answer ...
 
-// Finish — derive the auth key from the completed handshake
+// Finish: derive the auth key from the completed handshake
 let done = auth::finish(state3, dh_answer)?;
 
-// done.auth_key    → [u8; 256]   — the shared secret
-// done.first_salt  → i64         — first server salt to use
-// done.time_offset → i32         — clock skew relative to server
+// done.auth_key    → [u8; 256]  : the shared secret
+// done.first_salt  → i64        : first server salt to use
+// done.time_offset → i32        : clock skew relative to server
 ```
 
 ---
@@ -163,33 +163,33 @@ let framed = plain.pack_plain(&my_handshake_request)?;
 Every outgoing MTProto message has this structure:
 
 ```
-server_salt     (8 bytes) — current server salt
-session_id      (8 bytes) — random, stable for this session's lifetime
-message_id      (8 bytes) — Unix time * 2^32, monotonically increasing
-seq_no          (4 bytes) — content-related message counter
-message_length  (4 bytes) — length of payload in bytes
-payload         (N bytes) — serialized TL object
-padding         (M bytes) — 12–1024 random bytes so total % 16 == 0
+server_salt     (8 bytes): current server salt
+session_id      (8 bytes): random, stable for this session's lifetime
+message_id      (8 bytes): Unix time * 2^32, monotonically increasing
+seq_no          (4 bytes): content-related message counter
+message_length  (4 bytes): length of payload in bytes
+payload         (N bytes): serialized TL object
+padding         (M bytes): 12–1024 random bytes so total % 16 == 0
 ```
 
 Wrapped in a 32-byte `msg_key` prefix after encryption.
 
 ### Containers & Compression
 
-- `msg_container` (TL ID `0x73f1f8dc`) — wraps multiple logical messages in one TCP frame; both packing and unpacking are supported
-- `gzip_packed` (TL ID `0x3072cfa1`) — response bodies are decompressed automatically; outgoing large requests are optionally compressed
+- `msg_container` (TL ID `0x73f1f8dc`): wraps multiple logical messages in one TCP frame; both packing and unpacking are supported
+- `gzip_packed` (TL ID `0x3072cfa1`): response bodies are decompressed automatically; outgoing large requests are optionally compressed
 
 ### Salt & Time Management
 
-- `bad_server_salt` — session records the corrected salt and automatically resets
-- `future_salts` prefetch — salts are requested in advance; session rotates before expiry
-- `time_offset` correction — all outgoing `msg_id` values are adjusted for clock skew
+- `bad_server_salt`: session records the corrected salt and automatically resets
+- `future_salts` prefetch: salts are requested in advance; session rotates before expiry
+- `time_offset` correction: all outgoing `msg_id` values are adjusted for clock skew
 
 ### Error Recovery
 
-- `bad_msg_notification` — messages with wrong `msg_id`, `seq_no`, or `session_id` are resent with corrected framing
+- `bad_msg_notification`: messages with wrong `msg_id`, `seq_no`, or `session_id` are resent with corrected framing
 - `seq_no` auto-correction for error codes 32 (seq_no too low) and 33 (seq_no too high)
-- `msg_resend_req` — fulfils resend requests by replaying from a sent-body cache
+- `msg_resend_req`: fulfils resend requests by replaying from a sent-body cache
 
 ### Acknowledgements
 
@@ -203,9 +203,9 @@ Wrapped in a 32-byte `msg_key` prefix after encryption.
 
 ```
 layer-client
-└── layer-mtproto     ← you are here
-    ├── layer-tl-types  (tl-mtproto feature)
-    └── layer-crypto
+└ layer-mtproto ← you are here
+ ├ layer-tl-types (tl-mtproto feature)
+ └ layer-crypto
 ```
 
 ---
@@ -214,8 +214,8 @@ layer-client
 
 Licensed under either of, at your option:
 
-- **MIT License** — see [LICENSE-MIT](../LICENSE-MIT)
-- **Apache License, Version 2.0** — see [LICENSE-APACHE](../LICENSE-APACHE)
+- **MIT License**: see [LICENSE-MIT](../LICENSE-MIT)
+- **Apache License, Version 2.0**: see [LICENSE-APACHE](../LICENSE-APACHE)
 
 ---
 

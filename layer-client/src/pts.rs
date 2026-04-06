@@ -17,7 +17,7 @@ use layer_tl_types::{Cursor, Deserializable};
 
 use crate::{Client, InvocationError, RpcError, attach_client_to_update, update};
 
-// ─── PossibleGapBuffer (G-17) ─────────────────────────────────────────────────
+// PossibleGapBuffer (G-17)
 
 /// How long to wait before declaring a pts jump a real gap (ms).
 /// grammers uses a similar short window before triggering getDifference.
@@ -101,7 +101,7 @@ impl PossibleGapBuffer {
     }
 }
 
-// ─── PtsState ─────────────────────────────────────────────────────────────────
+// PtsState
 
 /// Full MTProto sequence-number state, including per-channel counters.
 ///
@@ -111,18 +111,18 @@ impl PossibleGapBuffer {
 pub struct PtsState {
     /// Main pts counter (messages, non-channel updates).
     pub pts: i32,
-    /// G-18: Secondary counter for secret-chat updates.
+    /// Secondary counter for secret-chat updates.
     pub qts: i32,
     /// Date of the last received update (Unix timestamp).
     pub date: i32,
-    /// G-19: Combined-container sequence number.
+    /// Combined-container sequence number.
     pub seq: i32,
     /// Per-channel pts counters.  `channel_id → pts`.
     pub channel_pts: HashMap<i64, i32>,
-    /// G-16: Timestamp of last received update for deadline-based gap detection.
+    /// Timestamp of last received update for deadline-based gap detection.
     pub last_update_at: Option<Instant>,
     /// Fix #4: Channels currently awaiting a getChannelDifference response.
-    /// If a channel is in this set, no new gap-fill task is spawned for it —
+    /// If a channel is in this set, no new gap-fill task is spawned for it
     /// matches grammers' `getting_diff_for` guard that prevents 1 gap → N tasks.
     pub getting_diff_for: HashSet<i64>,
     /// Fix B2: Guard against concurrent global getDifference calls.
@@ -151,7 +151,7 @@ impl PtsState {
         self.last_update_at = Some(Instant::now());
     }
 
-    /// G-16: Returns true if no update has been received for > 15 minutes.
+    /// Returns true if no update has been received for > 15 minutes.
     pub fn deadline_exceeded(&self) -> bool {
         self.last_update_at
             .as_ref()
@@ -174,7 +174,7 @@ impl PtsState {
         }
     }
 
-    /// G-18: Check a qts value (secret chat updates).
+    /// Check a qts value (secret chat updates).
     pub fn check_qts(&self, new_qts: i32, qts_count: i32) -> PtsCheckResult {
         let expected = self.qts + qts_count;
         if new_qts == expected {
@@ -189,11 +189,11 @@ impl PtsState {
         }
     }
 
-    /// G-19: Check top-level seq for UpdatesCombined containers.
+    /// Check top-level seq for UpdatesCombined containers.
     pub fn check_seq(&self, _new_seq: i32, seq_start: i32) -> PtsCheckResult {
         if self.seq == 0 {
             return PtsCheckResult::Ok;
-        } // uninitialised — accept
+        } // uninitialised: accept
         let expected = self.seq + 1;
         if seq_start == expected {
             PtsCheckResult::Ok
@@ -271,10 +271,10 @@ pub enum PtsCheckResult {
     Duplicate,
 }
 
-// ─── Client methods ───────────────────────────────────────────────────────────
+// Client methods
 
 impl Client {
-    // ── Global getDifference ──────────────────────────────────────────────
+    // Global getDifference
 
     /// Fetch and replay any updates missed since the persisted pts.
     ///
@@ -363,7 +363,7 @@ impl Client {
                     for (cid, cpts) in saved_channel_pts {
                         new_state.channel_pts.entry(cid).or_insert(cpts);
                     }
-                    // Preserve in-flight sets — we clear getting_global_diff ourselves.
+                    // Preserve in-flight sets: we clear getting_global_diff ourselves.
                     new_state.getting_global_diff = true; // will be cleared by caller
                     {
                         let mut s = self.inner.pts_state.lock().await;
@@ -371,16 +371,16 @@ impl Client {
                         *s = new_state;
                         s.getting_diff_for = getting_diff_for;
                     }
-                    // Final response — stop looping.
+                    // Final response: stop looping.
                     return Ok(all_updates);
                 }
 
                 tl::enums::updates::Difference::Slice(d) => {
-                    // Fix B4: server has more data — apply intermediate_state and
+                    // Fix B4: server has more data: apply intermediate_state and
                     // continue looping.  Old code returned here, losing all updates
                     // in subsequent slices.
                     tracing::debug!(
-                        "[layer] getDifference slice: {} messages, {} updates — continuing",
+                        "[layer] getDifference slice: {} messages, {} updates: continuing",
                         d.new_messages.len(),
                         d.other_updates.len()
                     );
@@ -416,7 +416,7 @@ impl Client {
 
                 tl::enums::updates::Difference::TooLong(d) => {
                     tracing::warn!(
-                        "[layer] getDifference: TooLong (pts={}) — re-syncing",
+                        "[layer] getDifference: TooLong (pts={}): re-syncing",
                         d.pts
                     );
                     self.inner.pts_state.lock().await.pts = d.pts;
@@ -427,7 +427,7 @@ impl Client {
         }
     }
 
-    // ── G-15: Per-channel getChannelDifference ────────────────────────────
+    // Per-channel getChannelDifference
 
     /// Fetch missed updates for a single channel.
     pub async fn get_channel_difference(
@@ -460,7 +460,7 @@ impl Client {
         if access_hash == 0 {
             tracing::debug!(
                 "[layer] channel {channel_id}: access_hash not cached, \
-                 cannot call getChannelDifference — caller will remove from tracking"
+                 cannot call getChannelDifference: caller will remove from tracking"
             );
             return Err(InvocationError::Rpc(RpcError {
                 code: 400,
@@ -494,8 +494,8 @@ impl Client {
         let body = match self.rpc_call_raw_pub(&req).await {
             Ok(b) => b,
             Err(InvocationError::Rpc(ref e)) if e.name == "PERSISTENT_TIMESTAMP_OUTDATED" => {
-                // G-20: treat as empty diff — retry next gap
-                tracing::debug!("[layer] G-20 PERSISTENT_TIMESTAMP_OUTDATED — skipping diff");
+                // treat as empty diff: retry next gap
+                tracing::debug!("[layer] G-20 PERSISTENT_TIMESTAMP_OUTDATED: skipping diff");
                 return Ok(vec![]);
             }
             Err(e) => return Err(e),
@@ -538,7 +538,7 @@ impl Client {
             }
             tl::enums::updates::ChannelDifference::TooLong(d) => {
                 tracing::warn!(
-                    "[layer] getChannelDifference TooLong — replaying messages, resetting pts"
+                    "[layer] getChannelDifference TooLong: replaying messages, resetting pts"
                 );
                 self.cache_users_slice_pub(&d.users).await;
                 self.cache_chats_slice_pub(&d.chats).await;
@@ -558,7 +558,7 @@ impl Client {
         Ok(updates)
     }
 
-    // ── Sync from server ──────────────────────────────────────────────────
+    // Sync from server
 
     pub async fn sync_pts_state(&self) -> Result<(), InvocationError> {
         let body = self
@@ -581,12 +581,12 @@ impl Client {
         Ok(())
     }
 
-    // ── Gap-check helpers ─────────────────────────────────────────────────
+    // Gap-check helpers
 
-    /// G-17: Check global pts, buffer during possible-gap window, fetch diff if real gap.
+    /// Check global pts, buffer during possible-gap window, fetch diff if real gap.
     ///
     /// Fix B2: if a global getDifference is already in-flight (getting_global_diff == true),
-    /// buffer the update and return immediately — mirrors grammers' getting_diff_for guard
+    /// buffer the update and return immediately: mirrors grammers' getting_diff_for guard
     /// for Key::Common.  Without this, every simultaneous gap detection spawns a redundant
     /// get_difference(), double-advancing pts and corrupting state.
     pub async fn check_and_fill_gap(
@@ -597,7 +597,7 @@ impl Client {
     ) -> Result<Vec<update::Update>, InvocationError> {
         // Fix B2: if a global diff is already in flight, just buffer and bail.
         if self.inner.pts_state.lock().await.getting_global_diff {
-            tracing::debug!("[layer] global diff in flight — buffering pts={new_pts}");
+            tracing::debug!("[layer] global diff in flight: buffering pts={new_pts}");
             if let Some(u) = upd {
                 self.inner.possible_gap.lock().await.push_global(u);
             }
@@ -636,7 +636,7 @@ impl Client {
                     .global_deadline_elapsed();
                 if deadline_elapsed {
                     tracing::warn!(
-                        "[layer] global pts gap: expected {expected}, got {got} — getDifference"
+                        "[layer] global pts gap: expected {expected}, got {got}: getDifference"
                     );
                     let buffered = self.inner.possible_gap.lock().await.drain_global();
                     // get_difference now sets/clears getting_global_diff internally (Fix B2).
@@ -646,7 +646,7 @@ impl Client {
                     Ok(diff_updates)
                 } else {
                     tracing::debug!(
-                        "[layer] global pts gap: expected {expected}, got {got} — buffering (possible gap)"
+                        "[layer] global pts gap: expected {expected}, got {got}: buffering (possible gap)"
                     );
                     Ok(vec![])
                 }
@@ -658,7 +658,7 @@ impl Client {
         }
     }
 
-    /// G-18: Check qts (secret chat updates) and fill gap if needed.
+    /// Check qts (secret chat updates) and fill gap if needed.
     pub async fn check_and_fill_qts_gap(
         &self,
         new_qts: i32,
@@ -676,14 +676,14 @@ impl Client {
                 Ok(vec![])
             }
             PtsCheckResult::Gap { expected, got } => {
-                tracing::warn!("[layer] qts gap: expected {expected}, got {got} — getDifference");
+                tracing::warn!("[layer] qts gap: expected {expected}, got {got}: getDifference");
                 self.get_difference().await
             }
             PtsCheckResult::Duplicate => Ok(vec![]),
         }
     }
 
-    /// G-19: Check top-level seq and fill gap if needed.
+    /// Check top-level seq and fill gap if needed.
     pub async fn check_and_fill_seq_gap(
         &self,
         new_seq: i32,
@@ -701,14 +701,14 @@ impl Client {
                 Ok(vec![])
             }
             PtsCheckResult::Gap { expected, got } => {
-                tracing::warn!("[layer] seq gap: expected {expected}, got {got} — getDifference");
+                tracing::warn!("[layer] seq gap: expected {expected}, got {got}: getDifference");
                 self.get_difference().await
             }
             PtsCheckResult::Duplicate => Ok(vec![]),
         }
     }
 
-    /// G-15: Check a per-channel pts, fetch getChannelDifference if there is a gap.
+    /// Check a per-channel pts, fetch getChannelDifference if there is a gap.
     pub async fn check_and_fill_channel_gap(
         &self,
         channel_id: i64,
@@ -716,7 +716,7 @@ impl Client {
         pts_count: i32,
         upd: Option<update::Update>,
     ) -> Result<Vec<update::Update>, InvocationError> {
-        // Fix #4: if a diff is already in flight for this channel, skip — prevents
+        // Fix #4: if a diff is already in flight for this channel, skip: prevents
         // 1 gap from spawning N concurrent getChannelDifference tasks.
         if self
             .inner
@@ -777,7 +777,7 @@ impl Client {
                     .channel_deadline_elapsed(channel_id);
                 if deadline_elapsed {
                     tracing::warn!(
-                        "[layer] channel {channel_id} pts gap: expected {expected}, got {got} — getChannelDifference"
+                        "[layer] channel {channel_id} pts gap: expected {expected}, got {got}: getChannelDifference"
                     );
                     // Fix #4: mark this channel as having a diff in flight.
                     self.inner
@@ -820,7 +820,7 @@ impl Client {
                                 || e.name == "CHANNEL_NOT_MODIFIED" =>
                         {
                             tracing::debug!(
-                                "[layer] channel {channel_id}: {} — removing from pts tracking \
+                                "[layer] channel {channel_id}: {}: removing from pts tracking \
                                  (next update treated as first-seen, no gap fill)",
                                 e.name
                             );
@@ -832,10 +832,10 @@ impl Client {
                             Ok(buffered)
                         }
                         Err(InvocationError::Deserialize(ref msg)) => {
-                            // Unrecognised constructor or parse failure — treat same as
+                            // Unrecognised constructor or parse failure: treat same as
                             // CHANNEL_INVALID: remove from tracking so we don't loop.
                             tracing::debug!(
-                                "[layer] channel {channel_id}: deserialize error ({msg}) — \
+                                "[layer] channel {channel_id}: deserialize error ({msg}): \
                                  removing from pts tracking"
                             );
                             {
@@ -858,7 +858,7 @@ impl Client {
                     }
                 } else {
                     tracing::debug!(
-                        "[layer] channel {channel_id} pts gap: expected {expected}, got {got} — buffering"
+                        "[layer] channel {channel_id} pts gap: expected {expected}, got {got}: buffering"
                     );
                     Ok(vec![])
                 }
@@ -870,29 +870,29 @@ impl Client {
         }
     }
 
-    /// G-16: Called periodically (e.g. from keepalive) to fire getDifference
+    /// Called periodically (e.g. from keepalive) to fire getDifference
     /// if no update has been received for > 15 minutes.
     ///
     /// Fix B3: also drives per-entry possible-gap deadlines independently of
     /// incoming updates.  Previously the POSSIBLE_GAP_DEADLINE_MS window was
-    /// only evaluated when a new incoming update called check_and_fill_gap —
+    /// only evaluated when a new incoming update called check_and_fill_gap
     /// meaning a quiet channel with a real gap would never fire getDifference
     /// until another update arrived.  This matches grammers' check_deadlines()
     /// which scans all LiveEntry.effective_deadline() on every keepalive tick.
     pub async fn check_update_deadline(&self) -> Result<(), InvocationError> {
-        // ── existing 15-minute global timeout ──────────────────────────────
+        // existing 15-minute global timeout
         let exceeded = self.inner.pts_state.lock().await.deadline_exceeded();
         if exceeded {
-            tracing::info!("[layer] G-16 update deadline exceeded — fetching getDifference");
+            tracing::info!("[layer] G-16 update deadline exceeded: fetching getDifference");
             let updates = self.get_difference().await?;
             for u in updates {
                 if self.inner.update_tx.try_send(u).is_err() {
-                    tracing::warn!("[layer] update channel full — dropping diff update");
+                    tracing::warn!("[layer] update channel full: dropping diff update");
                 }
             }
         }
 
-        // ── Fix B3a: drive global possible-gap deadline ────────────────────
+        // Fix B3a: drive global possible-gap deadline
         // If the possible-gap window has expired but no new update has arrived
         // to trigger check_and_fill_gap, fire getDifference from here.
         {
@@ -904,14 +904,14 @@ impl Client {
                 .global_deadline_elapsed();
             let already = self.inner.pts_state.lock().await.getting_global_diff;
             if gap_expired && !already {
-                tracing::debug!("[layer] B3 global possible-gap deadline expired — getDifference");
+                tracing::debug!("[layer] B3 global possible-gap deadline expired: getDifference");
                 let buffered = self.inner.possible_gap.lock().await.drain_global();
                 match self.get_difference().await {
                     Ok(mut updates) => {
                         updates.splice(0..0, buffered);
                         for u in updates {
                             if self.inner.update_tx.try_send(u).is_err() {
-                                tracing::warn!("[layer] update channel full — dropping gap update");
+                                tracing::warn!("[layer] update channel full: dropping gap update");
                             }
                         }
                     }
@@ -923,7 +923,7 @@ impl Client {
             }
         }
 
-        // ── Fix B3b: drive per-channel possible-gap deadlines ──────────────
+        // Fix B3b: drive per-channel possible-gap deadlines
         // Collect expired channel IDs up-front to avoid holding the lock across awaits.
         let expired_channels: Vec<i64> = {
             let gap = self.inner.possible_gap.lock().await;
@@ -945,7 +945,7 @@ impl Client {
                 continue;
             }
             tracing::debug!(
-                "[layer] B3 channel {channel_id} possible-gap deadline expired — getChannelDifference"
+                "[layer] B3 channel {channel_id} possible-gap deadline expired: getChannelDifference"
             );
             // Mark in-flight before spawning so a racing incoming update can't
             // also spawn a diff for the same channel.
@@ -976,7 +976,7 @@ impl Client {
                         for u in updates {
                             if utx.try_send(attach_client_to_update(u, &c)).is_err() {
                                 tracing::warn!(
-                                    "[layer] update channel full — dropping ch gap update"
+                                    "[layer] update channel full: dropping ch gap update"
                                 );
                             }
                         }

@@ -10,7 +10,7 @@ Telegram's infrastructure is split across multiple **Data Centers (DCs)**. When 
 2. You log in with a phone number registered on DC1
 3. Telegram returns `PHONE_MIGRATE_1`
 4. `layer-client` reconnects to DC1, re-performs the DH handshake, and retries your request
-5. Your code sees a successful response — the migration is invisible
+5. Your code sees a successful response: the migration is invisible
 
 The correct DC is then saved in the session file for future connections.
 

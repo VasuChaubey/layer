@@ -1,6 +1,6 @@
 [package]
 name        = "layer-client"
-description = "Production-grade async Telegram client — updates, bots, flood-wait, dialogs, messages"
+description = "Production-grade async Telegram client: updates, bots, flood-wait, dialogs, messages"
 readme = "README.md"
 version.workspace    = true
 edition.workspace    = true

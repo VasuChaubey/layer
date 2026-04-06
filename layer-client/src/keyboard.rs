@@ -1,4 +1,4 @@
-//! Inline keyboard builder — create reply markups without raw TL verbosity.
+//! Inline keyboard builder: create reply markups without raw TL verbosity.
 //!
 //! # Example
 //! ```rust,no_run
@@ -15,7 +15,7 @@
 
 use layer_tl_types as tl;
 
-// ─── Button ───────────────────────────────────────────────────────────────────
+// Button
 
 /// A single inline keyboard button.
 #[derive(Clone)]
@@ -209,7 +209,7 @@ impl Button {
     }
 }
 
-// ─── InlineKeyboard ───────────────────────────────────────────────────────────
+// InlineKeyboard
 
 /// Builder for an inline keyboard reply markup.
 ///
@@ -264,7 +264,7 @@ impl From<InlineKeyboard> for tl::enums::ReplyMarkup {
     }
 }
 
-// ─── ReplyKeyboard ────────────────────────────────────────────────────────────
+// ReplyKeyboard
 
 /// Builder for a reply keyboard (shown below the message input box).
 #[derive(Clone, Default)]

@@ -98,7 +98,7 @@ impl EncryptedSession {
         n
     }
 
-    // ── G-05: non-content-related seq_no ─────────────────────────────────────
+    // non-content-related seq_no
     /// Return the current even seq_no WITHOUT advancing the counter.
     ///
     /// Service messages (MsgsAck, containers, etc.) MUST use an even seqno
@@ -108,7 +108,7 @@ impl EncryptedSession {
         self.sequence * 2
     }
 
-    // ── G-03: seq_no correction on bad_msg codes 32/33 ───────────────────────
+    // seq_no correction on bad_msg codes 32/33
     /// Correct the outgoing sequence counter when the server reports a
     /// `bad_msg_notification` with error codes 32 (seq_no too low) or
     /// 33 (seq_no too high).
@@ -117,7 +117,7 @@ impl EncryptedSession {
     pub fn correct_seq_no(&mut self, code: u32) {
         match code {
             32 => {
-                // seq_no too low — jump forward so next send is well above server expectation
+                // seq_no too low: jump forward so next send is well above server expectation
                 self.sequence += 64;
                 log::debug!(
                     "[layer] G-03 seq_no correction: code 32, bumped seq to {}",
@@ -125,7 +125,7 @@ impl EncryptedSession {
                 );
             }
             33 => {
-                // seq_no too high — step back, but never below 1 to avoid
+                // seq_no too high: step back, but never below 1 to avoid
                 // re-using seq_no=1 which was already sent this session.
                 // Zeroing would make the next content message get seq_no=1,
                 // which the server already saw and will reject again with code 32.
@@ -139,7 +139,7 @@ impl EncryptedSession {
         }
     }
 
-    // ── G-12: dynamic time_offset correction ─────────────────────────────────
+    // dynamic time_offset correction
     /// Re-derive the clock skew from a server-provided `msg_id`.
     ///
     /// Called on `bad_msg_notification` error codes 16 (msg_id too low) and
@@ -165,7 +165,7 @@ impl EncryptedSession {
         self.last_msg_id = 0;
     }
 
-    // ── G-02 / G-07 helpers ───────────────────────────────────────────────────
+    // G-02 / G-07 helpers
 
     /// Allocate a fresh `(msg_id, seqno)` pair for an inner container message
     /// WITHOUT encrypting anything.
@@ -225,7 +225,7 @@ impl EncryptedSession {
         self.pack_body_with_msg_id(container_body, false)
     }
 
-    // ── Original pack methods (unchanged) ────────────────────────────────────
+    // Original pack methods (unchanged)
 
     /// Serialize and encrypt a TL function into a wire-ready byte vector.
     pub fn pack_serializable<S: layer_tl_types::Serializable>(&mut self, call: &S) -> Vec<u8> {
@@ -349,7 +349,7 @@ impl EncryptedSession {
 }
 
 impl EncryptedSession {
-    /// Decrypt a frame using explicit key + session_id — no mutable state needed.
+    /// Decrypt a frame using explicit key + session_id: no mutable state needed.
     /// Used by the split-reader task so it can decrypt without locking the writer.
     pub fn decrypt_frame(
         auth_key: &[u8; 256],

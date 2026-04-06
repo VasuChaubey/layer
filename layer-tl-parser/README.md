@@ -11,7 +11,7 @@
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
 [![Rust](https://img.shields.io/badge/rust-2024_edition-f74c00)](https://www.rust-lang.org/)
 
-*Turns raw `.tl` schema text into a structured AST — the foundation of the entire type system.*
+*Turns raw `.tl` schema text into a structured AST: the foundation of the entire type system.*
 
 </div>
 
@@ -30,7 +30,7 @@ layer-tl-parser = "0.4.6"
 
 ## ✨ What It Does
 
-The Telegram API is defined in a custom schema language called **TL (Type Language)**. Every type, constructor, and function in the Telegram protocol is described in `.tl` files — `api.tl` for the high-level API, `mtproto.tl` for the low-level MTProto protocol.
+The Telegram API is defined in a custom schema language called **TL (Type Language)**. Every type, constructor, and function in the Telegram protocol is described in `.tl` files: `api.tl` for the high-level API, `mtproto.tl` for the low-level MTProto protocol.
 
 `layer-tl-parser` reads these schema files and produces a structured AST that can be consumed by code generators (like `layer-tl-gen`) to produce native Rust types.
 
@@ -76,7 +76,7 @@ pub struct Parameter {
 
 /// Parameter types cover: bare, boxed, flags field, conditional, repeated
 pub enum ParameterType {
-    /// A `flags:#` field — holds the bitfield for conditional parameters
+    /// A `flags:#` field: holds the bitfield for conditional parameters
     Flags,
     /// A normal or conditional parameter
     Normal {
@@ -152,8 +152,8 @@ Parse errors are returned as `layer_tl_parser::ParseError` with the line content
 
 ```
 layer-tl-types  (generated types, user-facing)
-└── layer-tl-gen    (code generator, build-time)
-    └── layer-tl-parser    ← you are here
+└ layer-tl-gen (code generator, build-time)
+ └ layer-tl-parser ← you are here
 ```
 
 ---
@@ -162,8 +162,8 @@ layer-tl-types  (generated types, user-facing)
 
 Licensed under either of, at your option:
 
-- **MIT License** — see [LICENSE-MIT](../LICENSE-MIT)
-- **Apache License, Version 2.0** — see [LICENSE-APACHE](../LICENSE-APACHE)
+- **MIT License**: see [LICENSE-MIT](../LICENSE-MIT)
+- **Apache License, Version 2.0**: see [LICENSE-APACHE](../LICENSE-APACHE)
 
 ---
 

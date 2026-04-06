@@ -3,10 +3,10 @@
 //! Alongside the existing Abridged transport this module provides:
 //!
 //! * [`IntermediateTransport`]: each packet is `[4-byte LE length][payload]`.
-//!   More compatible than Abridged with proxies that inspect the first byte.
+//! More compatible than Abridged with proxies that inspect the first byte.
 //!
 //! * [`FullTransport`]: like Intermediate but additionally includes a running
-//!   sequence number and a CRC-32 checksum for integrity verification.
+//! sequence number and a CRC-32 checksum for integrity verification.
 
 use crate::InvocationError;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -77,7 +77,7 @@ impl IntermediateTransport {
 /// Extends Intermediate with:
 /// * 4-byte little-endian **sequence number** (auto-incremented per message).
 /// * 4-byte **CRC-32** at the end of each packet covering
-///   `[len][seq_no][payload]`.
+/// `[len][seq_no][payload]`.
 ///
 /// No init byte is sent; the full format is detected by the absence of
 /// `0xef` / `0xee` in the first byte.

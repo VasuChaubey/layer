@@ -4,7 +4,7 @@
 //! [`InlineQueryIter`] streams live inline queries arriving from users typing
 //! `@yourbot query`.  Backed by the update stream.
 //!
-//! ## Sending (user/client side: G-25)
+//! ## Sending (user/client side:)
 //! [`InlineResultIter`] lets a *user* account call `messages.GetInlineBotResults`
 //! and iterate the results, with a `.send()` helper to forward a chosen result.
 
@@ -32,7 +32,7 @@ impl InlineQueryIter {
     }
 }
 
-// InlineResult (G-25)
+// InlineResult
 
 /// A single result returned by a bot for an inline query.
 /// Obtained from [`InlineResultIter::next`].
@@ -94,7 +94,7 @@ impl InlineResult {
     }
 }
 
-// InlineResultIter (G-25)
+// InlineResultIter
 
 /// Paginated iterator over results from a bot's inline mode.
 /// Created by [`Client::inline_query`].
@@ -178,7 +178,7 @@ impl Client {
         InlineQueryIter { rx }
     }
 
-    /// Query a bot's inline mode and return a paginated [`InlineResultIter`] (G-25).
+    /// Query a bot's inline mode and return a paginated [`InlineResultIter`].
     ///
     /// Equivalent to typing `@bot_username query` in a Telegram app.
     ///
@@ -188,7 +188,7 @@ impl Client {
     /// #            dest: layer_tl_types::enums::Peer) -> Result<(), layer_client::InvocationError> {
     /// let mut iter = client.inline_query(bot, "hello").await?;
     /// while let Some(r) = iter.next().await? {
-    ///     println!("{}", r.title().unwrap_or("(no title)"));
+    ///   println!("{}", r.title().unwrap_or("(no title)"));
     /// }
     /// # Ok(()) }
     /// ```

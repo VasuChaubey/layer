@@ -163,7 +163,7 @@ pub fn generate_key_data_from_nonce(
     (key, iv)
 }
 
-// DH parameter validation (G-53)
+// DH parameter validation
 
 /// Telegram's published 2048-bit safe DH prime (big-endian, 256 bytes).
 ///
@@ -258,14 +258,14 @@ fn prime_residue(bytes: &[u8], modulus: u64) -> u64 {
 /// 3. `dh_prime` matches Telegram's published safe prime exactly.
 /// 4. `g` ∈ {2, 3, 4, 5, 6, 7}.
 /// 5. The residue condition for `g` and the prime holds:
-///    | g | condition           |
-///    |---|---------------------|
-///    | 2 | p mod 8 = 7         |
-///    | 3 | p mod 3 = 2         |
-///    | 4 | always valid        |
-///    | 5 | p mod 5 ∈ {1, 4}    |
-///    | 6 | p mod 24 ∈ {19, 23} |
-///    | 7 | p mod 7 ∈ {3, 5, 6} |
+///  | g | condition           |
+///  |---|---------------------|
+///  | 2 | p mod 8 = 7         |
+///  | 3 | p mod 3 = 2         |
+///  | 4 | always valid        |
+///  | 5 | p mod 5 ∈ {1, 4}    |
+///  | 6 | p mod 24 ∈ {19, 23} |
+///  | 7 | p mod 7 ∈ {3, 5, 6} |
 pub fn check_p_and_g(dh_prime: &[u8], g: u32) -> Result<(), DhError> {
     // 1. Length
     if dh_prime.len() != 256 {
@@ -278,7 +278,7 @@ pub fn check_p_and_g(dh_prime: &[u8], g: u32) -> Result<(), DhError> {
     }
 
     // 3. Known prime: exact match guarantees the residue conditions below
-    //    are deterministic constants, so check 5 is redundant after this.
+    //  are deterministic constants, so check 5 is redundant after this.
     if dh_prime != &TELEGRAM_DH_PRIME[..] {
         return Err(DhError::PrimeUnknown);
     }
@@ -289,7 +289,7 @@ pub fn check_p_and_g(dh_prime: &[u8], g: u32) -> Result<(), DhError> {
     }
 
     // 5. Residue condition: deterministic for the known Telegram prime, but
-    //    kept for clarity and future-proofing against prime rotation.
+    //  kept for clarity and future-proofing against prime rotation.
     let valid = match g {
         2 => true, // p mod 8 = 7 is a fixed property of TELEGRAM_DH_PRIME
         3 => true, // p mod 3 = 2

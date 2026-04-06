@@ -8,7 +8,7 @@ An async Rust library for the Telegram MTProto protocol.
 [![TL Layer](https://img.shields.io/badge/TL%20Layer-224-8b5cf6?style=flat-square)](https://core.telegram.org/schema)
 [![Telegram](https://img.shields.io/badge/chat-%40layer__chat-2CA5E0?style=flat-square&logo=telegram)](https://t.me/layer_chat)
 
-> **Pre-production (`0.x.x`)** — APIs may change between minor versions. See [CHANGELOG](CHANGELOG.md) before upgrading.
+> **Pre-production (`0.x.x`)**: APIs may change between minor versions. See [CHANGELOG](CHANGELOG.md) before upgrading.
 
 ---
 
@@ -16,7 +16,7 @@ An async Rust library for the Telegram MTProto protocol.
 
 layer is a bottom-up implementation of [Telegram MTProto](https://core.telegram.org/mtproto) in async Rust. The TL schema parser, AES-IGE cipher, Diffie-Hellman handshake, MTProto session, and update stream are all written from scratch. External deps (`tokio`, `flate2`, `getrandom`) are used where they make sense.
 
-This is an **experiment in understanding** — built to learn how the protocol actually works, not as a production SDK. The architecture and DH session design are closely based on [grammers](https://codeberg.org/Lonami/grammers) by Lonami. Portions of the code are derived from grammers (MIT/Apache-2.0).
+This is an **experiment in understanding**: built to learn how the protocol actually works, not as a production SDK. The architecture and DH session design are closely based on [grammers](https://codeberg.org/Lonami/grammers) by Lonami. Portions of the code are derived from grammers (MIT/Apache-2.0).
 
 > **AI note:** Parts of the documentation, boilerplate, and repeated patterns in this repo were drafted with AI assistance to reduce manual effort. Everything has been reviewed by a human before publishing. The core library code is written and understood by the author.
 
@@ -113,7 +113,7 @@ if !client.is_authorized().await? {
 }
 ```
 
-For the full API — messaging, media, keyboards, search, participants, reactions, raw invoke, transports, session backends — see **[docs.rs/layer-client](https://docs.rs/layer-client)** and the **[online guide](https://layer.ankitchaubey.in/)**.
+For the full API: messaging, media, keyboards, search, participants, reactions, raw invoke, transports, session backends: see **[docs.rs/layer-client](https://docs.rs/layer-client)** and the **[online guide](https://layer.ankitchaubey.in/)**.
 
 ---
 
@@ -172,13 +172,13 @@ Integration tests in `layer-client/tests/integration.rs` use `InMemoryBackend` a
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR. Run `cargo test --workspace` and `cargo clippy --workspace` locally. Security issues: see [SECURITY.md](SECURITY.md) — don't open a public issue.
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a PR. Run `cargo test --workspace` and `cargo clippy --workspace` locally. Security issues: see [SECURITY.md](SECURITY.md): don't open a public issue.
 
 ---
 
 ## Acknowledgements
 
-- [Lonami](https://codeberg.org/Lonami) / [grammers](https://codeberg.org/Lonami/grammers) — architecture, DH session design, SRP 2FA math, and session handling are based on this library. Derived code is used under MIT/Apache-2.0.
+- [Lonami](https://codeberg.org/Lonami) / [grammers](https://codeberg.org/Lonami/grammers): architecture, DH session design, SRP 2FA math, and session handling are based on this library. Derived code is used under MIT/Apache-2.0.
 - [Telegram](https://core.telegram.org/mtproto) for the MTProto spec and public TL schema.
 - `tokio`, `flate2`, `getrandom`, `sha2`, `socket2`.
 

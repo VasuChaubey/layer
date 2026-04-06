@@ -92,8 +92,8 @@ impl RetryPolicy for NoRetries {
 /// ```rust
 /// # use layer_client::retry::AutoSleep;
 /// let policy = AutoSleep {
-///     threshold: std::time::Duration::from_secs(60),
-///     io_errors_as_flood_of: Some(std::time::Duration::from_secs(1)),
+///   threshold: std::time::Duration::from_secs(60),
+///   io_errors_as_flood_of: Some(std::time::Duration::from_secs(1)),
 /// };
 /// ```
 pub struct AutoSleep {
@@ -169,10 +169,10 @@ impl RetryPolicy for AutoSleep {
 /// ```rust,ignore
 /// let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
 /// loop {
-///     match self.do_rpc_call(req).await {
-///         Ok(body) => return Ok(body),
-///         Err(e)   => rl.advance(e).await?,
-///     }
+///   match self.do_rpc_call(req).await {
+///       Ok(body) => return Ok(body),
+///       Err(e)   => rl.advance(e).await?,
+///   }
 /// }
 /// ```
 ///

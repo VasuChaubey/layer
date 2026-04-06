@@ -11,9 +11,9 @@
 //!
 //! # Feature gates
 //! * `html`     : enables `parse_html` / `generate_html` via the built-in hand-rolled
-//!   parser (zero extra deps).
+//! parser (zero extra deps).
 //! * `html5ever`: replaces `parse_html` with a spec-compliant html5ever tokenizer.
-//!   `generate_html` is always the same hand-rolled generator.
+//! `generate_html` is always the same hand-rolled generator.
 
 use layer_tl_types as tl;
 

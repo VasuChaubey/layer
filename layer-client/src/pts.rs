@@ -2,7 +2,7 @@
 //!
 //! Tracks `pts` / `qts` / `seq` / `date` plus **per-channel pts**, and
 //! fills gaps via `updates.getDifference` (global) and
-//! `updates.getChannelDifference` (per-channel, gap G-15).
+//! `updates.getChannelDifference` (per-channel, gap).
 //!
 //! ## What "gap" means
 //! Telegram guarantees updates arrive in order within a pts counter.
@@ -17,7 +17,7 @@ use layer_tl_types::{Cursor, Deserializable};
 
 use crate::{Client, InvocationError, RpcError, attach_client_to_update, update};
 
-// PossibleGapBuffer (G-17)
+// PossibleGapBuffer
 
 /// How long to wait before declaring a pts jump a real gap (ms).
 /// grammers uses a similar short window before triggering getDifference.
@@ -239,7 +239,7 @@ impl PtsState {
         self.touch();
     }
 
-    /// Advance the qts (G-18).
+    /// Advance the qts.
     pub fn advance_qts(&mut self, new_qts: i32) {
         if new_qts > self.qts {
             self.qts = new_qts;
@@ -247,7 +247,7 @@ impl PtsState {
         self.touch();
     }
 
-    /// Advance seq (G-19).
+    /// Advance seq.
     pub fn advance_seq(&mut self, new_seq: i32) {
         if new_seq > self.seq {
             self.seq = new_seq;
@@ -495,7 +495,7 @@ impl Client {
             Ok(b) => b,
             Err(InvocationError::Rpc(ref e)) if e.name == "PERSISTENT_TIMESTAMP_OUTDATED" => {
                 // treat as empty diff: retry next gap
-                tracing::debug!("[layer] G-20 PERSISTENT_TIMESTAMP_OUTDATED: skipping diff");
+                tracing::debug!("[layer] PERSISTENT_TIMESTAMP_OUTDATED: skipping diff");
                 return Ok(vec![]);
             }
             Err(e) => return Err(e),
@@ -811,9 +811,9 @@ impl Client {
                         // loop that happened when advance_channel kept the stale pts alive.
                         //
                         // Common causes:
-                        //   - access_hash not in peer cache (update arrived via updateShort
-                        //     which carries no chats list)
-                        //   - bot was kicked / channel deleted
+                        // - access_hash not in peer cache (update arrived via updateShort
+                        //   which carries no chats list)
+                        // - bot was kicked / channel deleted
                         Err(InvocationError::Rpc(ref e))
                             if e.name == "CHANNEL_INVALID"
                                 || e.name == "CHANNEL_PRIVATE"
@@ -883,7 +883,7 @@ impl Client {
         // existing 15-minute global timeout
         let exceeded = self.inner.pts_state.lock().await.deadline_exceeded();
         if exceeded {
-            tracing::info!("[layer] G-16 update deadline exceeded: fetching getDifference");
+            tracing::info!("[layer] update deadline exceeded: fetching getDifference");
             let updates = self.get_difference().await?;
             for u in updates {
                 if self.inner.update_tx.try_send(u).is_err() {

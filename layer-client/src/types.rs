@@ -1,4 +1,4 @@
-//! Ergonomic high-level wrappers over raw TL user/chat types (G-37).
+//! Typed wrappers over raw TL user and chat types.
 //!
 //! The raw TL layer has `tl::enums::User` (two variants: `Empty` / `User`) and
 //! `tl::enums::Chat` (five variants: `Empty`, `Chat`, `Forbidden`,

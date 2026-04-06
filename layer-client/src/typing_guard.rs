@@ -10,12 +10,12 @@
 //! use layer_tl_types as tl;
 //!
 //! async fn handle(client: Client, peer: tl::enums::Peer) {
-//!     // Typing indicator is sent immediately and auto-cancelled on drop.
-//!     let _typing = TypingGuard::start(&client, peer.clone(),
-//!         tl::enums::SendMessageAction::SendMessageTypingAction).await.unwrap();
+//!   // Typing indicator is sent immediately and auto-cancelled on drop.
+//!   let _typing = TypingGuard::start(&client, peer.clone(),
+//!       tl::enums::SendMessageAction::SendMessageTypingAction).await.unwrap();
 //!
-//!     do_expensive_work().await;
-//!     // `_typing` is dropped here: Telegram sees the typing stop.
+//!   do_expensive_work().await;
+//!   // `_typing` is dropped here: Telegram sees the typing stop.
 //! }
 //! # async fn do_expensive_work() {}
 //! ```
@@ -54,10 +54,10 @@ impl TypingGuard {
     ///
     /// # Arguments
     /// * `topic_id`    : `Some(msg_id)` for a forum topic thread; `None` for
-    ///   the main chat.
+    /// the main chat.
     /// * `repeat_delay`: How often to re-send the action to keep it alive.
-    ///   Telegram drops the indicator after ~5 s; ≤ 4 s is
-    ///   recommended.
+    /// Telegram drops the indicator after ~5 s; ≤ 4 s is
+    /// recommended.
     pub async fn start_ex(
         client: &Client,
         peer: tl::enums::Peer,

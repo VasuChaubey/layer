@@ -64,7 +64,7 @@ impl PeerRef {
     /// * `Peer` variant → returned immediately.
     /// * `Id` variant   → decoded from Bot-API encoding, no network call.
     /// * `Username` variant → may perform a `contacts.resolveUsername` RPC
-    ///   if not already cached.
+    /// if not already cached.
     pub async fn resolve(
         self,
         client: &crate::Client,

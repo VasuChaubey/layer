@@ -120,7 +120,7 @@ impl EncryptedSession {
                 // seq_no too low: jump forward so next send is well above server expectation
                 self.sequence += 64;
                 log::debug!(
-                    "[layer] G-03 seq_no correction: code 32, bumped seq to {}",
+                    "[layer] seq_no correction: code 32, bumped seq to {}",
                     self.sequence
                 );
             }
@@ -131,7 +131,7 @@ impl EncryptedSession {
                 // which the server already saw and will reject again with code 32.
                 self.sequence = self.sequence.saturating_sub(16).max(1);
                 log::debug!(
-                    "[layer] G-03 seq_no correction: code 33, lowered seq to {}",
+                    "[layer] seq_no correction: code 33, lowered seq to {}",
                     self.sequence
                 );
             }
@@ -156,7 +156,7 @@ impl EncryptedSession {
             .as_secs() as i32;
         let new_offset = server_time.wrapping_sub(local_now);
         log::debug!(
-            "[layer] G-12 time_offset correction: {} → {} (server_time={server_time})",
+            "[layer] time_offset correction: {} → {} (server_time={server_time})",
             self.time_offset,
             new_offset
         );
@@ -165,7 +165,7 @@ impl EncryptedSession {
         self.last_msg_id = 0;
     }
 
-    // G-02 / G-07 helpers
+    // helpers
 
     /// Allocate a fresh `(msg_id, seqno)` pair for an inner container message
     /// WITHOUT encrypting anything.
@@ -190,7 +190,7 @@ impl EncryptedSession {
     /// the counter) or even (service, no advance).
     ///
     /// Returns `(encrypted_wire_bytes, msg_id)`.
-    /// Used for G-02 (bad_msg re-send) and G-07 (container inner messages).
+    /// Used for (bad_msg re-send) and (container inner messages).
     pub fn pack_body_with_msg_id(&mut self, body: &[u8], content_related: bool) -> (Vec<u8>, i64) {
         let msg_id = self.next_msg_id();
         let seq_no = if content_related {

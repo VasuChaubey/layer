@@ -1,6 +1,6 @@
 # IncomingMessage
 
-`IncomingMessage` is the type of `Update::NewMessage` and `Update::MessageEdited`. It wraps a raw `tl::enums::Message` and provides ergonomic accessors plus a full suite of **convenience action methods** that let you act on a message without passing the `Client` around explicitly (when the message was received from the update stream it already carries a client reference).
+`IncomingMessage` is the type of `Update::NewMessage` and `Update::MessageEdited`. It wraps a raw `tl::enums::Message` and provides typed accessors plus a full suite of **convenience action methods** that let you act on a message without passing the `Client` around explicitly (when the message was received from the update stream it already carries a client reference).
 
 ---
 

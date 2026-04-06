@@ -447,7 +447,7 @@ impl Client {
     /// # async fn example(client: Client, peer: layer_client::tl::enums::Peer) -> anyhow::Result<()> {
     /// let mut iter = client.iter_profile_photos(peer, 0);
     /// while let Some(photo) = iter.next().await? {
-    ///     println!("{photo:?}");
+    ///   println!("{photo:?}");
     /// }
     /// # Ok(()) }
     /// ```
@@ -576,10 +576,10 @@ impl PeerUserIdExt for tl::enums::Peer {
 /// ```rust,no_run
 /// # async fn f(client: layer_client::Client, channel: layer_tl_types::enums::Peer) -> Result<(), Box<dyn std::error::Error>> {
 /// client.set_banned_rights(channel, 12345678, |b| b
-///     .send_messages(true)
-///     .send_media(true)
-///     .until_date(0))
-///     .await?;
+///   .send_messages(true)
+///   .send_media(true)
+///   .until_date(0))
+///   .await?;
 /// # Ok(()) }
 /// ```
 #[derive(Debug, Clone, Default)]
@@ -1191,7 +1191,7 @@ impl Client {
     }
 }
 
-// ProfilePhotoIter (G-12)
+// ProfilePhotoIter
 
 /// Lazy async iterator over a user's profile photos.
 ///
@@ -1206,7 +1206,7 @@ impl Client {
 /// # async fn example(client: Client, peer: layer_client::tl::enums::Peer) -> anyhow::Result<()> {
 /// let mut iter = client.iter_profile_photos(peer, 0).await?;
 /// while let Some(photo) = iter.next().await? {
-///     println!("{photo:?}");
+///   println!("{photo:?}");
 /// }
 /// # Ok(()) }
 /// ```

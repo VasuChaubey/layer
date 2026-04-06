@@ -151,12 +151,12 @@ fn type_path(ty: &Type, turbofish: bool) -> String {
         // two classes of builtin need special treatment:
         //
         // 1. Builtins that already carry a generic arg baked into the string
-        //    (e.g. `"Vec<u8>"`): insert `::` before the `<`.
-        //    Without it rustc parses `Vec<u8>::` as a comparison expression.
+        //  (e.g. `"Vec<u8>"`): insert `::` before the `<`.
+        //  Without it rustc parses `Vec<u8>::` as a comparison expression.
         //
         // 2. Array builtins (`"[u8; 16]"`, `"[u8; 32]"`): the type is not a
-        //    named path, so `[u8; 16]::deserialize` is a hard syntax error.
-        //    Wrap in `<…>` to get `<[u8; 16]>::deserialize`.
+        //  named path, so `[u8; 16]::deserialize` is a hard syntax error.
+        //  Wrap in `<…>` to get `<[u8; 16]>::deserialize`.
         if turbofish {
             if b.starts_with('[') {
                 // Array type: wrap in angle brackets for path syntax.

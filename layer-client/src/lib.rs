@@ -9,7 +9,7 @@
 //! - Peer access-hash caching: API calls always carry correct access hashes
 //! - `FLOOD_WAIT` auto-retry with configurable policy
 //! - Typed async update stream: `NewMessage`, `MessageEdited`, `MessageDeleted`,
-//!   `CallbackQuery`, `InlineQuery`, `InlineSend`, `Raw`
+//! `CallbackQuery`, `InlineQuery`, `InlineSend`, `Raw`
 //! - Send / edit / delete / forward / pin messages
 //! - Search messages (per-chat and global)
 //! - Mark as read, delete dialogs, clear mentions
@@ -249,8 +249,8 @@ impl PeerCache {
 /// use layer_client::InputMessage;
 ///
 /// let msg = InputMessage::text("Hello, *world*!")
-///     .silent(true)
-///     .reply_to(Some(42));
+///   .silent(true)
+///   .reply_to(Some(42));
 /// ```
 #[derive(Clone, Default)]
 pub struct InputMessage {
@@ -267,7 +267,7 @@ pub struct InputMessage {
     pub entities: Option<Vec<tl::enums::MessageEntity>>,
     pub reply_markup: Option<tl::enums::ReplyMarkup>,
     pub schedule_date: Option<i32>,
-    /// Attached media to send alongside the message (G-45).
+    /// Attached media to send alongside the message.
     /// Use [`InputMessage::copy_media`] to attach media copied from an existing message.
     pub media: Option<tl::enums::InputMedia>,
 }
@@ -351,8 +351,8 @@ impl InputMessage {
     /// use layer_client::{InputMessage, keyboard::{InlineKeyboard, Button}};
     ///
     /// let msg = InputMessage::text("Pick one:")
-    ///     .keyboard(InlineKeyboard::new()
-    ///         .row([Button::callback("A", b"a"), Button::callback("B", b"b")]));
+    ///   .keyboard(InlineKeyboard::new()
+    ///       .row([Button::callback("A", b"a"), Button::callback("B", b"b")]));
     /// ```
     pub fn keyboard(mut self, kb: impl Into<tl::enums::ReplyMarkup>) -> Self {
         self.reply_markup = Some(kb.into());
@@ -365,7 +365,7 @@ impl InputMessage {
         self
     }
 
-    /// Attach media copied from an existing message (G-45).
+    /// Attach media copied from an existing message.
     ///
     /// Pass the `InputMedia` obtained from [`crate::media::Photo`],
     /// [`crate::media::Document`], or directly from a raw `MessageMedia`.
@@ -377,7 +377,7 @@ impl InputMessage {
     /// # use layer_client::{InputMessage, tl};
     /// # fn example(media: tl::enums::InputMedia) {
     /// let msg = InputMessage::text("Here is the file again")
-    ///     .copy_media(media);
+    ///   .copy_media(media);
     /// # }
     /// ```
     pub fn copy_media(mut self, media: tl::enums::InputMedia) -> Self {
@@ -516,10 +516,10 @@ impl Config {
     /// # Example
     /// ```rust,no_run
     /// let cfg = Config {
-    ///     api_id:   12345,
-    ///     api_hash: "abc".into(),
-    ///     catch_up: true,
-    ///     ..Config::with_string_session(std::env::var("SESSION").unwrap_or_default())
+    ///   api_id:   12345,
+    ///   api_hash: "abc".into(),
+    ///   catch_up: true,
+    ///   ..Config::with_string_session(std::env::var("SESSION").unwrap_or_default())
     /// };
     /// ```
     pub fn with_string_session(s: impl Into<String>) -> Self {
@@ -699,7 +699,7 @@ pub struct Client {
 }
 
 impl Client {
-    // Builder (G-20)
+    // Builder
 
     /// Return a fluent [`ClientBuilder`] for constructing and connecting a client.
     ///
@@ -708,11 +708,11 @@ impl Client {
     /// # use layer_client::Client;
     /// # #[tokio::main] async fn main() -> anyhow::Result<()> {
     /// let (client, _shutdown) = Client::builder()
-    ///     .api_id(12345)
-    ///     .api_hash("abc123")
-    ///     .session("my.session")
-    ///     .catch_up(true)
-    ///     .connect().await?;
+    ///   .api_id(12345)
+    ///   .api_hash("abc123")
+    ///   .session("my.session")
+    ///   .catch_up(true)
+    ///   .connect().await?;
     /// # Ok(()) }
     /// ```
     pub fn builder() -> crate::builder::ClientBuilder {
@@ -1026,12 +1026,12 @@ impl Client {
         // Restore update state / catch-up
         //
         // Two modes:
-        //   catch_up=false → always call sync_pts_state() so we start from
-        //                    the current server state (ignore saved pts).
-        //   catch_up=true  → if we have a saved pts > 0, restore it and let
-        //                    get_difference() fetch what we missed.  Only fall
-        //                    back to sync_pts_state() when there is no saved
-        //                    state (first boot, or fresh session).
+        // catch_up=false → always call sync_pts_state() so we start from
+        //                  the current server state (ignore saved pts).
+        // catch_up=true  → if we have a saved pts > 0, restore it and let
+        //                  get_difference() fetch what we missed.  Only fall
+        //                  back to sync_pts_state() when there is no saved
+        //                  state (first boot, or fresh session).
         let has_saved_state = loaded_session
             .as_ref()
             .is_some_and(|s| s.updates_state.is_initialised());
@@ -1525,9 +1525,9 @@ impl Client {
 
     // Reader task
     // Decrypts frames without holding any lock, then routes:
-    //   rpc_result  → pending map (oneshot to waiting RPC caller)
-    //   update      → update_tx  (delivered to stream_updates consumers)
-    //   bad_server_salt → updates writer salt
+    // rpc_result  → pending map (oneshot to waiting RPC caller)
+    // update      → update_tx  (delivered to stream_updates consumers)
+    // bad_server_salt → updates writer salt
     //
     // On error: drains pending with Io errors (so AutoSleep retries callers),
     // then loops with exponential backoff until reconnect succeeds.
@@ -1548,14 +1548,14 @@ impl Client {
     // infrastructure and is never allowed to die permanently.
     //
     // Restart sequence on unexpected exit:
-    //   1. Drain all pending RPCs with ConnectionReset so callers unblock.
-    //   2. Exponential-backoff reconnect loop (500 ms → 30 s cap) until TCP
-    //      succeeds, respecting the shutdown token at every sleep point.
-    //   3. Spawn init_connection in a background task (same deadlock-safe
-    //      pattern as do_reconnect_loop) and pass the oneshot receiver as the
-    //      initial_init_rx to the restarted reader_loop.
-    //   4. reader_loop picks up init_rx immediately on its first iteration and
-    //      handles success/failure exactly like a mid-session reconnect.
+    // 1. Drain all pending RPCs with ConnectionReset so callers unblock.
+    // 2. Exponential-backoff reconnect loop (500 ms → 30 s cap) until TCP
+    //    succeeds, respecting the shutdown token at every sleep point.
+    // 3. Spawn init_connection in a background task (same deadlock-safe
+    //    pattern as do_reconnect_loop) and pass the oneshot receiver as the
+    //    initial_init_rx to the restarted reader_loop.
+    // 4. reader_loop picks up init_rx immediately on its first iteration and
+    //    handles success/failure exactly like a mid-session reconnect.
     #[allow(clippy::too_many_arguments)]
     async fn run_reader_task(
         &self,
@@ -1790,7 +1790,7 @@ impl Client {
                             // Overwriting enc.salt here would clobber the managed salt pool.
                             self.route_frame(msg.body, msg.msg_id).await;
 
-                            // G-04/G-07: Acks are NOT flushed here standalone.
+                            //: Acks are NOT flushed here standalone.
                             // They accumulate in pending_ack and are bundled into the next
                             // outgoing request container, matching grammers' behavior and
                             // avoiding an extra standalone frame (and extra RTT exposure).
@@ -2196,16 +2196,16 @@ impl Client {
             // DIFF-03/09/05: FutureSalts: full grammers-style salt pool
             ID_FUTURE_SALTS => {
                 // future_salts#ae500895
-                //   [0..4]   constructor
-                //   [4..12]  req_msg_id (long)
-                //   [12..16] now (int) : server's current Unix time
-                //   [16..20] vector constructor 0x1cb5c415
-                //   [20..24] count (int)
-                //   per entry (bare FutureSalt, no constructor):
-                //     [+0..+4]  valid_since (int)
-                //     [+4..+8]  valid_until (int)
-                //     [+8..+16] salt (long)
-                //   first entry starts at byte 24
+                // [0..4]   constructor
+                // [4..12]  req_msg_id (long)
+                // [12..16] now (int) : server's current Unix time
+                // [16..20] vector constructor 0x1cb5c415
+                // [20..24] count (int)
+                // per entry (bare FutureSalt, no constructor):
+                //   [+0..+4]  valid_since (int)
+                //   [+4..+8]  valid_until (int)
+                //   [+8..+16] salt (long)
+                // first entry starts at byte 24
                 //
                 // DIFF-05: FutureSalts has odd seq_no → must ack.
                 // grammers: process_message() pushes every msg with seq_no%2==1.
@@ -2305,7 +2305,7 @@ impl Client {
                     );
                 }
             }
-            // G-02 + G-03 + G-12: bad_msg_notification
+            // +: bad_msg_notification
             ID_BAD_MSG_NOTIFY => {
                 // bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int
                 if body.len() < 20 {
@@ -2411,10 +2411,10 @@ impl Client {
                             // Phase 3: re-acquire writer only for TCP send.
                             let mut w = self.inner.writer.lock().await;
                             if let Err(e) = send_frame_write(&mut w.write_half, &wire, &fk).await {
-                                tracing::warn!("[layer] G-02 re-send failed: {e}");
+                                tracing::warn!("[layer] re-send failed: {e}");
                                 w.sent_bodies.remove(&new_msg_id);
                             } else {
-                                tracing::debug!("[layer] G-02 re-sent {old_msg_id}→{new_msg_id}");
+                                tracing::debug!("[layer] re-sent {old_msg_id}→{new_msg_id}");
                             }
                         } else {
                             self.inner
@@ -2449,7 +2449,7 @@ impl Client {
                         .pending_ack
                         .push(answer_msg_id);
                     tracing::trace!(
-                        "[layer] G-11 MsgDetailedInfo: queued ack for answer_msg_id={answer_msg_id}"
+                        "[layer] MsgDetailedInfo: queued ack for answer_msg_id={answer_msg_id}"
                     );
                 }
             }
@@ -2465,7 +2465,7 @@ impl Client {
                         .pending_ack
                         .push(answer_msg_id);
                     tracing::trace!(
-                        "[layer] G-11 MsgNewDetailedInfo: queued ack for {answer_msg_id}"
+                        "[layer] MsgNewDetailedInfo: queued ack for {answer_msg_id}"
                     );
                 }
             }
@@ -2496,7 +2496,7 @@ impl Client {
                             w.sent_bodies.insert(new_id, orig_body);
                             send_frame_write(&mut w.write_half, &wire, &fk).await.ok();
                             tracing::debug!(
-                                "[layer] G-14 MsgResendReq: resent {resend_id} → {new_id}"
+                                "[layer] MsgResendReq: resent {resend_id} → {new_id}"
                             );
                         }
                     }
@@ -3034,7 +3034,7 @@ impl Client {
     ///
     /// - `initial_delay_ms = RECONNECT_BASE_MS` for a fresh disconnect.
     /// - `initial_delay_ms = 0` when TCP already worked but init failed: we
-    ///   want to retry init immediately rather than waiting another full backoff.
+    /// want to retry init immediately rather than waiting another full backoff.
     ///
     /// Returns `None` if the shutdown token fires (caller should exit).
     async fn do_reconnect_loop(
@@ -3940,7 +3940,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, msg: layer_client::update::IncomingMessage)
     /// #   -> Result<(), layer_client::InvocationError> {
     /// if let Some(replied) = client.get_reply_to_message(&msg).await? {
-    ///     println!("Replied to: {:?}", replied.text());
+    ///   println!("Replied to: {:?}", replied.text());
     /// }
     /// # Ok(()) }
     /// ```
@@ -4053,7 +4053,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, peer: layer_tl_types::enums::Peer) -> Result<(), Box<dyn std::error::Error>> {
     /// let scheduled = client.get_scheduled_messages(peer).await?;
     /// for msg in &scheduled {
-    ///     println!("Scheduled: {:?} at {:?}", msg.text(), msg.date());
+    ///   println!("Scheduled: {:?} at {:?}", msg.text(), msg.date());
     /// }
     /// # Ok(()) }
     /// ```
@@ -4533,7 +4533,7 @@ impl Client {
     /// ```rust,no_run
     /// # async fn f(client: layer_client::Client, msg: layer_client::update::IncomingMessage) -> Result<(), Box<dyn std::error::Error>> {
     /// if let Some(loc) = msg.download_location() {
-    ///     client.download_media_to_file(loc, "/tmp/file.jpg").await?;
+    ///   client.download_media_to_file(loc, "/tmp/file.jpg").await?;
     /// }
     /// # Ok(()) }
     /// ```
@@ -4825,12 +4825,12 @@ impl Client {
     /// Send an RPC call and await the response via a oneshot channel.
     ///
     /// This is the core of the split-stream design:
-    ///  1. Pack the request and get its msg_id.
-    ///  2. Register a oneshot Sender in the pending map (BEFORE sending).
-    ///  3. Send the frame while holding the writer lock.
-    ///  4. Release the writer lock immediately: the reader task now runs freely.
-    ///  5. Await the oneshot Receiver; the reader task will fulfill it when
-    ///     the matching rpc_result frame arrives.
+    ///1. Pack the request and get its msg_id.
+    ///2. Register a oneshot Sender in the pending map (BEFORE sending).
+    ///3. Send the frame while holding the writer lock.
+    ///4. Release the writer lock immediately: the reader task now runs freely.
+    ///5. Await the oneshot Receiver; the reader task will fulfill it when
+    ///   the matching rpc_result frame arrives.
     async fn do_rpc_call<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
         let (tx, rx) = oneshot::channel();
         {
@@ -4851,18 +4851,18 @@ impl Client {
 
             let fk = w.frame_kind.clone();
 
-            // G-04 + G-07: drain any pending acks; if non-empty bundle them with
+            // +: drain any pending acks; if non-empty bundle them with
             // the request in a MessageContainer so acks piggyback on every send.
             let acks: Vec<i64> = w.pending_ack.drain(..).collect();
 
             if acks.is_empty() {
                 // Simple path: standalone request
                 let (wire, msg_id) = w.enc.pack_body_with_msg_id(&body, true);
-                w.sent_bodies.insert(msg_id, body); // G-02
+                w.sent_bodies.insert(msg_id, body); //
                 self.inner.pending.lock().await.insert(msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
             } else {
-                // G-07 container path: [MsgsAck, request]
+                // container path: [MsgsAck, request]
                 // Build MsgsAck inner body
                 let ack_body = build_msgs_ack_body(&acks);
                 // Allocate inner msg_id+seqno for each item
@@ -4881,12 +4881,12 @@ impl Client {
                 // grammers ref: MsgIdPair { msg_id: req_msg_id, container_msg_id }
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
 
-                w.sent_bodies.insert(req_msg_id, body); // G-02
+                w.sent_bodies.insert(req_msg_id, body); //
                 w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
                 tracing::debug!(
-                    "[layer] G-07 container: bundled {} acks + request (cid={container_msg_id})",
+                    "[layer] container: bundled {} acks + request (cid={container_msg_id})",
                     acks.len()
                 );
             }
@@ -4937,12 +4937,12 @@ impl Client {
             let mut w = self.inner.writer.lock().await;
             let fk = w.frame_kind.clone();
 
-            // G-04 + G-07: drain pending acks and bundle into container if any
+            // +: drain pending acks and bundle into container if any
             let acks: Vec<i64> = w.pending_ack.drain(..).collect();
 
             if acks.is_empty() {
                 let (wire, msg_id) = w.enc.pack_body_with_msg_id(&body, true);
-                w.sent_bodies.insert(msg_id, body); // G-02
+                w.sent_bodies.insert(msg_id, body); //
                 self.inner.pending.lock().await.insert(msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
             } else {
@@ -4954,12 +4954,12 @@ impl Client {
                     (req_msg_id, req_seqno, body.as_slice()),
                 ]);
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
-                w.sent_bodies.insert(req_msg_id, body); // G-02
+                w.sent_bodies.insert(req_msg_id, body); //
                 w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
                 tracing::debug!(
-                    "[layer] G-07 write container: bundled {} acks + write (cid={container_msg_id})",
+                    "[layer] write container: bundled {} acks + write (cid={container_msg_id})",
                     acks.len()
                 );
             }
@@ -5208,13 +5208,13 @@ impl Client {
         let (tx, rx) = oneshot::channel();
         {
             let raw_body = req.to_bytes();
-            let body = maybe_gz_pack(&raw_body); // G-06
+            let body = maybe_gz_pack(&raw_body); //
             let mut w = self.inner.writer.lock().await;
             let fk = w.frame_kind.clone();
-            let acks: Vec<i64> = w.pending_ack.drain(..).collect(); // G-04+G-07
+            let acks: Vec<i64> = w.pending_ack.drain(..).collect(); // 
             if acks.is_empty() {
                 let (wire, msg_id) = w.enc.pack_body_with_msg_id(&body, true);
-                w.sent_bodies.insert(msg_id, body); // G-02
+                w.sent_bodies.insert(msg_id, body); //
                 self.inner.pending.lock().await.insert(msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
             } else {
@@ -5226,7 +5226,7 @@ impl Client {
                     (req_msg_id, req_seqno, body.as_slice()),
                 ]);
                 let (wire, container_msg_id) = w.enc.pack_container(&container_payload);
-                w.sent_bodies.insert(req_msg_id, body); // G-02
+                w.sent_bodies.insert(req_msg_id, body); //
                 w.container_map.insert(container_msg_id, req_msg_id); // DIFF-11
                 self.inner.pending.lock().await.insert(req_msg_id, tx);
                 send_frame_write(&mut w.write_half, &wire, &fk).await?;
@@ -5250,7 +5250,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client) -> Result<(), Box<dyn std::error::Error>> {
     /// let mut iter = client.iter_dialogs();
     /// while let Some(dialog) = iter.next(&client).await? {
-    ///     println!("{}", dialog.title());
+    ///   println!("{}", dialog.title());
     /// }
     /// # Ok(()) }
     /// ```
@@ -5274,7 +5274,7 @@ impl Client {
     /// # async fn f(client: layer_client::Client, peer: layer_tl_types::enums::Peer) -> Result<(), Box<dyn std::error::Error>> {
     /// let mut iter = client.iter_messages(peer);
     /// while let Some(msg) = iter.next(&client).await? {
-    ///     println!("{:?}", msg.text());
+    ///   println!("{:?}", msg.text());
     /// }
     /// # Ok(()) }
     /// ```
@@ -5782,7 +5782,7 @@ impl ConnectionWriter {
     /// fire a proactive `GetFutureSalts`.
     ///
     /// grammers reference: `mtp/encrypted.rs Encrypted::push()` prelude +
-    ///                      `try_request_salts()`.
+    ///                    `try_request_salts()`.
     fn advance_salt_if_needed(&mut self) -> bool {
         let Some((server_now, start_instant)) = self.start_salt_time else {
             return self.salts.len() <= 1;
@@ -5913,14 +5913,14 @@ impl Connection {
                 // Correct Obfuscated2 handshake (all 3 bugs fixed)
                 //
                 // Bug A fix: use AES-256-CTR via layer_crypto::ObfuscatedCipher,
-                //            not the broken SHA-256 XOR ObfCipher.
+                //          not the broken SHA-256 XOR ObfCipher.
                 //
                 // Bug B fix: ObfuscatedCipher::new reverses the WHOLE 64-byte
-                //            nonce buffer to derive the RX key, not sub-slices.
+                //          nonce buffer to derive the RX key, not sub-slices.
                 //
                 // Bug C fix: encrypt ALL 64 bytes so the cipher is at position 64
-                //            after the handshake; the cipher is STORED and applied
-                //            to every byte sent/received afterwards.
+                //          after the handshake; the cipher is STORED and applied
+                //          to every byte sent/received afterwards.
                 //
                 // Proxy secret is reserved for future MTProxy support.
                 let _ = secret; // not yet used
@@ -6684,7 +6684,7 @@ fn maybe_gz_pack(data: &[u8]) -> Vec<u8> {
     }
 }
 
-// G-04 + G-07: MsgsAck body builder
+// +: MsgsAck body builder
 
 /// Build the TL body for `msgs_ack#62d6b459 msg_ids:Vector<long>`.
 fn build_msgs_ack_body(msg_ids: &[i64]) -> Vec<u8> {

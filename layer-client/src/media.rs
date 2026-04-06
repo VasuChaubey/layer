@@ -132,7 +132,7 @@ impl UploadedFile {
     }
 }
 
-// Downloadable trait (G-44)
+// Downloadable trait
 
 /// Something that can be downloaded via [`Client::iter_download`].
 ///
@@ -147,7 +147,7 @@ pub trait Downloadable {
     }
 }
 
-// Typed media wrappers (G-43)
+// Typed media wrappers
 
 /// Typed wrapper over a Telegram photo.
 #[derive(Debug, Clone)]
@@ -449,7 +449,7 @@ impl Client {
         })
     }
 
-    /// **G-41**: Upload bytes using `WORKER_COUNT` (4) parallel workers.
+    /// Upload bytes using `WORKER_COUNT` (4) parallel workers.
     ///
     /// Only beneficial for big files (≥ 10 MB).  Falls through to sequential
     /// for small files automatically.
@@ -591,13 +591,13 @@ impl Client {
     /// use layer_client::media::AlbumItem;
     ///
     /// client.send_album(peer, vec![
-    ///     AlbumItem::new(photo_media).caption("First photo"),
-    ///     AlbumItem::new(video_media).caption("Second photo").reply_to(Some(42)),
+    ///   AlbumItem::new(photo_media).caption("First photo"),
+    ///   AlbumItem::new(video_media).caption("Second photo").reply_to(Some(42)),
     /// ]).await?;
     ///
     /// // Shorthand: legacy tuple API still works via From impl
     /// client.send_album(peer, vec![
-    ///     (photo_media, "caption".to_string()).into(),
+    ///   (photo_media, "caption".to_string()).into(),
     /// ]).await?;
     /// ```
     pub async fn send_album(
@@ -689,7 +689,7 @@ impl Client {
         Ok(bytes)
     }
 
-    /// **G-42**: Download a file using `WORKER_COUNT` (4) parallel workers.
+    /// Download a file using `WORKER_COUNT` (4) parallel workers.
     ///
     /// `size` must be the exact byte size of the file (obtained from the
     /// [`Downloadable::size`] accessor, or from the document's `size` field).
@@ -769,7 +769,7 @@ impl Client {
     }
 
     /// Download any [`Downloadable`] item, automatically choosing concurrent
-    /// mode for files ≥ 10 MB (G-42 / G-44 integration).
+    /// mode for files ≥ 10 MB (/ integration).
     pub async fn download<D: Downloadable>(&self, item: &D) -> Result<Vec<u8>, InvocationError> {
         let loc = item
             .to_input_location()

@@ -18,7 +18,7 @@ The following are **always available** without any feature flag:
 - `TypingGuard`: RAII typing indicator
 - `SearchBuilder`, `GlobalSearchBuilder`: fluent search
 - `PeerRef`: flexible peer argument
-- `User`, `Group`, `Channel`, `Chat`: ergonomic type wrappers
+- `User`, `Group`, `Channel`, `Chat`: typed wrappers
 - `Socks5Config`: SOCKS5 proxy config
 - `BannedRightsBuilder`, `AdminRightsBuilder`, `ParticipantPermissions`
 - `StringSessionBackend`, `InMemoryBackend`, `BinaryFileBackend`

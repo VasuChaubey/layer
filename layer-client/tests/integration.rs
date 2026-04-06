@@ -4,14 +4,14 @@
 //! run against the compiled crate, not the internals).
 //!
 //! Run with:
-//!   cargo test -p layer-client --test integration
+//! cargo test -p layer-client --test integration
 //!
 //! Ported/inspired by grammers' test patterns. Tests are grouped by module:
-//!   - `retry`        : RetryPolicy and RetryLoop behaviour
-//!   - `session`      : SessionBackend implementations
-//!   - `dc_migration` : fallback addresses, DcAuthTracker
-//!   - `update_state` : UpdateStateChange application
-//!   - `incoming_msg` : IncomingMessage accessor coverage
+//! - `retry`        : RetryPolicy and RetryLoop behaviour
+//! - `session`      : SessionBackend implementations
+//! - `dc_migration` : fallback addresses, DcAuthTracker
+//! - `update_state` : UpdateStateChange application
+//! - `incoming_msg` : IncomingMessage accessor coverage
 
 // Re-exports needed for tests
 // (In real file these would be `use layer_client::...`)

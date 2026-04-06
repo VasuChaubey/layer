@@ -27,7 +27,7 @@
 
 ## Why layer?
 
-Most Telegram libraries are thin wrappers around generated code or ports from Python/JavaScript. `layer` is different: it was built from scratch to understand MTProto at the lowest level, then wrapped in an ergonomic high-level API.
+Most Telegram libraries are thin wrappers around generated code or ports from Python/JavaScript. `layer` is different: it was built from scratch to understand MTProto at the lowest level, then exposed through a straightforward high-level API.
 
 <div class="feature-grid">
 <div class="feature-card">

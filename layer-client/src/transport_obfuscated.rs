@@ -6,16 +6,16 @@
 //! All three bugs from the original implementation are fixed here:
 //!
 //! * **Bug A**: The original `ObfCipher` used SHA-256-based XOR instead of
-//!   AES-256-CTR.  Replaced entirely by [`layer_crypto::ObfuscatedCipher`].
+//! AES-256-CTR.  Replaced entirely by [`layer_crypto::ObfuscatedCipher`].
 //!
 //! * **Bug B**: `derive_keys` reversed only the 32-byte and 16-byte
-//!   sub-slices instead of the full 64-byte buffer.  Fixed by using
-//!   `ObfuscatedCipher::new` which reverses the whole buffer correctly.
+//! sub-slices instead of the full 64-byte buffer.  Fixed by using
+//! `ObfuscatedCipher::new` which reverses the whole buffer correctly.
 //!
 //! * **Bug C**: The handshake only encrypted 8 bytes (`nonce[56..]`) and
-//!   discarded the cipher, leaving subsequent data unencrypted.  Fixed: all
-//!   64 bytes are encrypted, only `[56..64]` are taken from the ciphertext,
-//!   and the cipher is retained for all subsequent sends/receives.
+//! discarded the cipher, leaving subsequent data unencrypted.  Fixed: all
+//! 64 bytes are encrypted, only `[56..64]` are taken from the ciphertext,
+//! and the cipher is retained for all subsequent sends/receives.
 //!
 //! [Obfuscated2]: https://core.telegram.org/mtproto/mtproto-transports#obfuscated-2
 

@@ -1,6 +1,6 @@
 # Peer Types & PeerRef
 
-`layer-client` provides ergonomic high-level wrappers over the raw `tl::enums::User` and `tl::enums::Chat` types, plus `PeerRef`: a flexible peer argument accepted by every `Client` method.
+`layer-client` provides typed wrappers over the raw `tl::enums::User` and `tl::enums::Chat` types, plus `PeerRef`: a flexible peer argument accepted by every `Client` method.
 
 ---
 

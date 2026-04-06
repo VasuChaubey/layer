@@ -9,16 +9,16 @@
 //!
 //! # async fn example(client: Client, update: Update) -> Result<(), Box<dyn std::error::Error>> {
 //! dispatch!(client, update,
-//!     NewMessage(msg) if !msg.outgoing() => {
-//!         println!("Got: {:?}", msg.text());
-//!     },
-//!     MessageEdited(msg) => {
-//!         println!("Edited: {:?}", msg.text());
-//!     },
-//!     CallbackQuery(cb) => {
-//!         client.answer_callback_query(cb.query_id, Some("✓"), false).await?;
-//!     },
-//!     _ => {} // catch-all for unhandled variants
+//!   NewMessage(msg) if !msg.outgoing() => {
+//!       println!("Got: {:?}", msg.text());
+//!   },
+//!   MessageEdited(msg) => {
+//!       println!("Edited: {:?}", msg.text());
+//!   },
+//!   CallbackQuery(cb) => {
+//!       client.answer_callback_query(cb.query_id, Some("✓"), false).await?;
+//!   },
+//!   _ => {} // catch-all for unhandled variants
 //! );
 //! # Ok(()) }
 //! ```
@@ -31,9 +31,9 @@
 /// # Syntax
 /// ```text
 /// dispatch!(client, update,
-///     VariantName(binding) [if guard] => { body },
-///     ...
-///     [_ => { fallback }]
+///   VariantName(binding) [if guard] => { body },
+///   ...
+///   [_ => { fallback }]
 /// );
 /// ```
 ///

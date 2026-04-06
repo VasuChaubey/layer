@@ -16,17 +16,17 @@
 //!
 //! ```rust,ignore
 //! async fn rpc_call_raw<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
-//!     let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
-//!     loop {
-//!         match self.do_rpc_call(req).await {
-//!             Ok(body) => return Ok(body),
-//!             Err(e) if e.migrate_dc_id().is_some() => {
-//!                 // Auto-migrate then retry on the new DC: no need to propagate.
-//!                 self.migrate_to(e.migrate_dc_id().unwrap()).await?;
-//!             }
-//!             Err(e) => rl.advance(e).await?,
-//!         }
-//!     }
+//!   let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
+//!   loop {
+//!       match self.do_rpc_call(req).await {
+//!           Ok(body) => return Ok(body),
+//!           Err(e) if e.migrate_dc_id().is_some() => {
+//!               // Auto-migrate then retry on the new DC: no need to propagate.
+//!               self.migrate_to(e.migrate_dc_id().unwrap()).await?;
+//!           }
+//!           Err(e) => rl.advance(e).await?,
+//!       }
+//!   }
 //! }
 //! ```
 //!
@@ -122,12 +122,12 @@ impl Default for DcAuthTracker {
 ///
 /// ```rust,ignore
 /// pub async fn invoke_on_dc<R: RemoteCall>(
-///     &self,
-///     dc_id: i32,
-///     req: &R,
+///   &self,
+///   dc_id: i32,
+///   req: &R,
 /// ) -> Result<R::Return, InvocationError> {
-///     self.copy_auth_to_dc(dc_id).await?;
-///     // ... then call the DC-specific connection
+///   self.copy_auth_to_dc(dc_id).await?;
+///   // ... then call the DC-specific connection
 /// }
 /// ```
 pub async fn copy_auth_to_dc<F, Fut>(
@@ -174,11 +174,11 @@ where
 //
 // In lib.rs, replace:
 //
-//   .unwrap_or_else(|| "149.154.167.51:443".to_string())
+// .unwrap_or_else(|| "149.154.167.51:443".to_string())
 //
 // With:
 //
-//   .unwrap_or_else(|| crate::dc_migration::fallback_dc_addr(new_dc_id).to_string())
+// .unwrap_or_else(|| crate::dc_migration::fallback_dc_addr(new_dc_id).to_string())
 //
 // And add auto-migration to rpc_call_raw:
 
@@ -188,36 +188,36 @@ where
 /// ```rust,ignore
 /// // BEFORE: only FLOOD_WAIT handled:
 /// async fn rpc_call_raw<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
-///     let mut fail_count   = NonZeroU32::new(1).unwrap();
-///     let mut slept_so_far = Duration::default();
-///     loop {
-///         match self.do_rpc_call(req).await {
-///             Ok(body) => return Ok(body),
-///             Err(e) => {
-///                 let ctx = RetryContext { fail_count, slept_so_far, error: e };
-///                 match self.inner.retry_policy.should_retry(&ctx) {
-///                     ControlFlow::Continue(delay) => { sleep(delay).await; slept_so_far += delay; fail_count = fail_count.saturating_add(1); }
-///                     ControlFlow::Break(())       => return Err(ctx.error),
-///                 }
-///             }
-///         }
-///     }
+///   let mut fail_count   = NonZeroU32::new(1).unwrap();
+///   let mut slept_so_far = Duration::default();
+///   loop {
+///       match self.do_rpc_call(req).await {
+///           Ok(body) => return Ok(body),
+///           Err(e) => {
+///               let ctx = RetryContext { fail_count, slept_so_far, error: e };
+///               match self.inner.retry_policy.should_retry(&ctx) {
+///                   ControlFlow::Continue(delay) => { sleep(delay).await; slept_so_far += delay; fail_count = fail_count.saturating_add(1); }
+///                   ControlFlow::Break(())       => return Err(ctx.error),
+///               }
+///           }
+///       }
+///   }
 /// }
 ///
 /// // AFTER: MIGRATE auto-handled, RetryLoop used:
 /// async fn rpc_call_raw<R: RemoteCall>(&self, req: &R) -> Result<Vec<u8>, InvocationError> {
-///     let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
-///     loop {
-///         match self.do_rpc_call(req).await {
-///             Ok(body) => return Ok(body),
-///             Err(e) if let Some(dc_id) = e.migrate_dc_id() => {
-///                 // Telegram is redirecting us to a different DC.
-///                 // Migrate transparently and retry: no error surfaces to caller.
-///                 self.migrate_to(dc_id).await?;
-///             }
-///             Err(e) => rl.advance(e).await?,
-///         }
-///     }
+///   let mut rl = RetryLoop::new(Arc::clone(&self.inner.retry_policy));
+///   loop {
+///       match self.do_rpc_call(req).await {
+///           Ok(body) => return Ok(body),
+///           Err(e) if let Some(dc_id) = e.migrate_dc_id() => {
+///               // Telegram is redirecting us to a different DC.
+///               // Migrate transparently and retry: no error surfaces to caller.
+///               self.migrate_to(dc_id).await?;
+///           }
+///           Err(e) => rl.advance(e).await?,
+///       }
+///   }
 /// }
 /// ```
 ///

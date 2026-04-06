@@ -404,10 +404,10 @@ impl IncomingMessage {
     //
     // Two tiers for every action:
     //  1. Clientless : `msg.reply("hi").await?`
-    //     Uses the embedded `self.client`. Returns an error if the message was
-    //     constructed without `.with_client(…)`.
+    //   Uses the embedded `self.client`. Returns an error if the message was
+    //   constructed without `.with_client(…)`.
     //  2. Explicit   : `msg.reply_with(&client, "hi").await?`
-    //     Always works, even when no client is embedded.
+    //   Always works, even when no client is embedded.
 
     // reply
 
@@ -815,9 +815,9 @@ impl CallbackQuery {
     /// query.answer().alert("No permission!").send(&client).await?;
     /// query.answer().url("https://example.com/game").send(&client).await?;
     /// query.answer()
-    ///     .text("Cached")
-    ///     .cache_time(std::time::Duration::from_secs(60))
-    ///     .send(&client).await?;
+    ///   .text("Cached")
+    ///   .cache_time(std::time::Duration::from_secs(60))
+    ///   .send(&client).await?;
     /// ```
     pub fn answer(&self) -> Answer<'_> {
         Answer {
@@ -847,7 +847,7 @@ impl CallbackQuery {
     }
 }
 
-// Answer builder (G-08)
+// Answer builder
 
 /// Fluent builder returned by [`CallbackQuery::answer`]. Finalize with `.send(&client).await`.
 pub struct Answer<'a> {
@@ -984,7 +984,7 @@ pub struct RawUpdate {
     pub constructor_id: u32,
 }
 
-// UserStatusUpdate (G-22)
+// UserStatusUpdate
 
 /// A user's online / offline status changed.
 ///
@@ -995,9 +995,9 @@ pub struct RawUpdate {
 /// # use layer_client::{Update, update::UserStatusUpdate};
 /// # async fn example(mut stream: layer_client::UpdateStream) {
 /// while let Some(upd) = stream.next().await {
-///     if let Update::UserStatus(s) = upd {
-///         println!("user {} status: {:?}", s.user_id, s.status);
-///     }
+///   if let Update::UserStatus(s) = upd {
+///       println!("user {} status: {:?}", s.user_id, s.status);
+///   }
 /// }
 /// # }
 /// ```
@@ -1009,7 +1009,7 @@ pub struct UserStatusUpdate {
     pub status: tl::enums::UserStatus,
 }
 
-// ChatActionUpdate (G-23)
+// ChatActionUpdate
 
 /// A user is performing a chat action (typing, uploading, recording…).
 ///
@@ -1020,9 +1020,9 @@ pub struct UserStatusUpdate {
 /// # use layer_client::{Update, update::ChatActionUpdate};
 /// # async fn example(mut stream: layer_client::UpdateStream) {
 /// while let Some(upd) = stream.next().await {
-///     if let Update::UserTyping(a) = upd {
-///         println!("user {} is typing in {:?}", a.user_id, a.peer);
-///     }
+///   if let Update::UserTyping(a) = upd {
+///       println!("user {} is typing in {:?}", a.user_id, a.peer);
+///   }
 /// }
 /// # }
 /// ```
@@ -1053,9 +1053,9 @@ pub enum Update {
     InlineQuery(InlineQuery),
     /// A user chose an inline result and sent it (bots only).
     InlineSend(InlineSend),
-    /// A user's online status changed (G-22).
+    /// A user's online status changed.
     UserStatus(UserStatusUpdate),
-    /// A user is typing / uploading / recording in a chat (G-23).
+    /// A user is typing / uploading / recording in a chat.
     UserTyping(ChatActionUpdate),
     /// A raw TL update not mapped to any of the above variants.
     Raw(RawUpdate),

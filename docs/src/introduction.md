@@ -3,7 +3,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="images/layer-banner-dark.png">
   <source media="(prefers-color-scheme: light)" srcset="images/layer-banner-light.png">
-  <img src="images/layer-banner.png" alt="layer: Async Rust MTProto" width="100%" style="border-radius:8px; margin-bottom:1.5rem;" />
 </picture>
 
 <div class="hero-banner">
@@ -66,7 +65,6 @@ Most Telegram libraries are thin wrappers around generated code or ports from Py
 
 ## Crate overview
 
-<img src="images/arch-stack.svg" alt="layer crate architecture stack" width="100%" style="margin: 1rem 0 1.5rem 0;" />
 
 | Crate | Description | Typical user |
 |---|---|---|
@@ -85,7 +83,7 @@ Most Telegram libraries are thin wrappers around generated code or ports from Py
 
 ```toml
 [dependencies]
-layer-client = "0.4.6"
+layer-client = "0.4.7"
 tokio        = { version = "1", features = ["full"] }
 ```
 
@@ -96,7 +94,7 @@ Then head to [Installation](./installation.md) for credentials setup, or jump st
 
 ---
 
-## What's new in v0.4.6
+## What's new in v0.4.7
 
 - **`StringSessionBackend`**: portable base64 sessions, no file required
 - **`LibSqlBackend`**: libsql/Turso remote database sessions
